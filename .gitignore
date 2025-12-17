@@ -1,0 +1,5 @@
+schematics/schematics-backups
+*.bak
+.venv
+schematics/schematics.step
+schematics/*.lck
