@@ -4769,15 +4769,15 @@
 			(uuid "7716ebc2-c8fa-4a46-a0d4-828f1e243b23")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Buzzer_Beeper.3dshapes/MagneticBuzzer_StarMicronics_QMX.step"
+		(model "${KIPRJMOD}/3dmodels/Buzzer.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 3.25 0 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -0 -0 -0)
 			)
 		)
 	)
