@@ -180,29 +180,29 @@ namespace menu {
                     case events::Button::UP:
                         cursor_up();
                         sound::play_navigation_tone();
-                        dirty = true;
+                        set_dirty();
                         break;
                     case events::Button::DOWN:
                         cursor_down();
                         sound::play_navigation_tone();
-                        dirty = true;
+                        set_dirty();
                         break;
                     case events::Button::A:
                     switch (cursor) {
                             case 0:
                                 sound::play_confirm_tone();
                                 current_app = App::TEMPERATURE;
-                                dirty = true;
+                                set_dirty();
                                 break;
                             case 1:
                                 sound::play_confirm_tone();
                                 current_app = App::TIME;
-                                dirty = true;
+                                set_dirty();
                                 break;
                             case 2:
                                 sound::play_confirm_tone();
                                 current_app = App::MUSIC;
-                                dirty = true;
+                                set_dirty();
                                 break;
                             case 3:
                                 deepsleep::deepsleep(display);

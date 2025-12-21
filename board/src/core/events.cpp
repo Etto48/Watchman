@@ -3,6 +3,7 @@
 
 #include "core/events.hpp"
 #include "constants.hpp"
+#include "logger.hpp"
 
 namespace events {
 
@@ -65,7 +66,7 @@ namespace events {
         }
 
         void IRAM_ATTR timer() {
-            //Serial.println("Timer interrupt fired.");
+            //log::info("Timer interrupt fired.");
         }
     }
 
@@ -132,13 +133,13 @@ namespace events {
     void start_timer_interrupt() {
         timer_ptr = timerBegin(0, 1000, true); 
         if (timer_ptr == nullptr) {
-            Serial.println("Error starting timer.");
+            logger::error("Error starting timer.");
             return;
         }
         timerAttachInterrupt(timer_ptr, ISRs::timer, true);
         timerAlarmWrite(timer_ptr, 1000, true); // 1 second interval
         timerAlarmEnable(timer_ptr);
-        Serial.println("Timer started correctly.");
+        logger::info("Timer started correctly.");
     }
 
     void enable_events() {
