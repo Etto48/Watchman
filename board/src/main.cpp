@@ -23,7 +23,14 @@ void hlt() {
 
 void setup() {
   logger::init();
-  logger::info("WatchMan Starting...");
+  auto wakeup_cause = esp_sleep_get_wakeup_cause();
+  if (wakeup_cause == ESP_SLEEP_WAKEUP_UNDEFINED) {
+    // Fresh boot
+    logger::info("WatchMan Starting...");
+  } else {
+    // Wake from sleep
+    logger::info("WatchMan Restarting from sleep...");
+  }
   ledcSetup(0, 5000, 8); // initialize ledc state so it doesn't conflict with i2c
   Wire.begin(SDA_PIN, SCL_PIN);
   logger::info("I2C Initialized.");

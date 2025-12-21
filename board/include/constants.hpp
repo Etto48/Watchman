@@ -27,6 +27,7 @@ constexpr uint8_t EVENT_QUEUE_SIZE = 16;
 constexpr uint64_t DEBOUNCE_DELAY_MS = 300;
 
 constexpr uint64_t TIME_BEFORE_DEEPSLEEP_MS = 60000; // 1 minute of inactivity before going to deep sleep
+constexpr uint64_t DEEPSLEEP_GRACE_PERIOD_MS = 5000; // 5 seconds grace period in deep sleep before sleeping
 
 constexpr float BATTERY_MAX_VOLTAGE = 4.2f; // Maximum battery voltage
 constexpr float BATTERY_MIN_VOLTAGE = 3.0f; // Minimum battery voltage
