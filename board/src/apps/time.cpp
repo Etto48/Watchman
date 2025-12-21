@@ -71,7 +71,7 @@ namespace apps::time {
                 if (last_time_info_update == 0) {
                     configTime(3600, 3600, "pool.ntp.org", "time.nist.gov");
                 }
-                if (millis() - last_time_info_update >= time_info_update_interval_ms) {
+                if (last_time_info_update + time_info_update_interval_ms <= millis()) {
                     // Update timeinfo here
                     last_time_info_update = millis();
                     getLocalTime(&timeinfo, 0);

@@ -49,8 +49,8 @@ namespace events {
     EventMask operator&(EventMask a, EventMask b);
     EventMask operator~(EventMask a);
 
-    // Retrieves the next event from the queue.
-    Event get_next_event();
+    // Retrieves the next event from the queue blocking up to timeout_ms milliseconds (0 = non blocking).
+    Event get_next_event(uint64_t timeout_ms = 0);
 
     // Masks (ignores) events of the specified types.
     void mask_event(EventMask mask);

@@ -46,7 +46,7 @@ namespace apps::temperature {
                 }
                 break;
             case events::EventType::NONE:
-                if (isnan(last_temperature) || millis() - last_update_time >= update_interval_ms) {
+                if (isnan(last_temperature) || last_update_time + update_interval_ms <= millis()) {
                     last_temperature = temperatureRead();
                     last_update_time = millis();
                     menu::set_dirty();

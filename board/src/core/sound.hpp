@@ -126,6 +126,15 @@ namespace sound {
     // Returns true if the melody was interrupted, false if it completed normally.
     bool play_interruptible_melody(const Note* melody, size_t length);
 
+    // Asynchronously plays a melody that can be interrupted by calling stop_async_interruptible_melody().
+    void async_play_interruptible_melody(const Note* melody, size_t length);
+
+    // Stops the currently playing asynchronous interruptible melody.
+    void stop_async_interruptible_melody();
+
+    // Returns true if a melody is currently being played asynchronously.
+    bool is_melody_playing();
+
     // Plays a single tone of the specified frequency for the specified duration. This function blocks until the tone is complete.
     void play_tone(NoteFrequency frequency, uint16_t duration);
 

@@ -44,8 +44,8 @@ namespace logger {
         auto seconds = us / 1000000;
         auto micros = us % 1000000;
         auto color = LogLevel_to_color_code(level);
-
-        Serial.printf("[%lld.%06lld] [%s%s\033[0m] ", seconds, micros, color, LogLevel_to_cstr(level));
+        auto task_name = pcTaskGetName(nullptr);
+        Serial.printf("[%lld.%06lld] (%s) [%s%s\033[0m] ", seconds, micros, task_name, color, LogLevel_to_cstr(level));
         vsnprintf(buffer, sizeof(buffer), fmt, args);
         buffer[sizeof(buffer) - 1] = '\0'; // Ensure null-termination
         Serial.print(buffer);

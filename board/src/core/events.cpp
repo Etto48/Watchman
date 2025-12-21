@@ -6,17 +6,29 @@
 #include "logger.hpp"
 
 namespace events {
-
-    volatile Event event_queue[EVENT_QUEUE_SIZE];
-    volatile uint8_t event_queue_head = 0;
-    volatile uint8_t event_queue_tail = 0;
+    QueueHandle_t event_queue = nullptr;
     uint64_t last_button_event_time[6*2] = {0};
     hw_timer_t* timer_ptr = nullptr;
     uint64_t last_event_timestamp = 0;
     EventMask current_mask = EventMask::NONE;
 
+    void IRAM_ATTR add_event(const Event& ev) {
+        Event dummy;
+        if (event_queue != nullptr) {
+            auto highPriorityTaskWoken = pdFALSE;
+            if(xQueueIsQueueFullFromISR(event_queue)) {
+                xQueueReceiveFromISR(event_queue, &dummy, &highPriorityTaskWoken);
+            }
+            xQueueSendFromISR(event_queue, &ev, &highPriorityTaskWoken);
+            
+            if (highPriorityTaskWoken) {
+                portYIELD_FROM_ISR();
+            }
+        }
+    }
+
     void IRAM_ATTR handle_button_interrupt(Button button, bool pressed) {
-        uint64_t timestamp = millis();
+        uint64_t timestamp = esp_timer_get_time() / 1000;
         Event ev;
         if (pressed) {
             ev.type = EventType::BUTTON_PRESS;
@@ -38,11 +50,7 @@ namespace events {
         ev.buttonEvent.button = button;
         ev.buttonEvent.timestamp = timestamp;
 
-        uint8_t next_head = (event_queue_head + 1) % EVENT_QUEUE_SIZE;
-        if (next_head != event_queue_tail) {
-            *(Event*)&event_queue[event_queue_head] = ev; // This should be fine because we are in a no-interrupt zone
-            event_queue_head = next_head;
-        }
+        add_event(ev);
     }
 
     namespace ISRs {
@@ -83,27 +91,15 @@ namespace events {
     }
     
     void clear_event_queue() {
-        noInterrupts();
-        event_queue_head = 0;
-        event_queue_tail = 0;
-        interrupts();
-    }
-
-    Event get_next_event_noint() {
-        if (event_queue_head == event_queue_tail) {
-            return Event{EventType::NONE, {}};
-        } else {
-            Event ev = *(const Event *)&event_queue[event_queue_tail]; // This can be done because we are in a no-interrupt zone
-            event_queue_tail = (event_queue_tail + 1) % EVENT_QUEUE_SIZE;
-            return ev;
+        if (event_queue != nullptr) {
+            xQueueReset(event_queue);
         }
     }
     
-    Event get_next_event()
+    Event get_next_event(uint64_t timeout_ms)
     {
-        noInterrupts();
-        auto ret = get_next_event_noint();
-        interrupts();
+        Event ret = { .type = EventType::NONE, {}};
+        auto res = xQueueReceive(event_queue, &ret, pdMS_TO_TICKS(timeout_ms));
         switch (ret.type) {
             case EventType::BUTTON_PRESS:
             case EventType::BUTTON_RELEASE:
@@ -143,6 +139,9 @@ namespace events {
     }
 
     void enable_events() {
+        if (event_queue == nullptr) {
+            event_queue = xQueueCreate(EVENT_QUEUE_SIZE, sizeof(Event));
+        }
         attachInterrupt(digitalPinToInterrupt(A_PIN), ISRs::button_A, CHANGE);
         attachInterrupt(digitalPinToInterrupt(B_PIN), ISRs::button_B, CHANGE);
         attachInterrupt(digitalPinToInterrupt(UP_PIN), ISRs::button_UP, CHANGE);
@@ -150,7 +149,7 @@ namespace events {
         attachInterrupt(digitalPinToInterrupt(LEFT_PIN), ISRs::button_LEFT, CHANGE);
         attachInterrupt(digitalPinToInterrupt(RIGHT_PIN), ISRs::button_RIGHT, CHANGE);
         start_timer_interrupt();
-        last_event_timestamp = millis();
+        last_event_timestamp = esp_timer_get_time() / 1000;
     }
 
     void disable_events() {
