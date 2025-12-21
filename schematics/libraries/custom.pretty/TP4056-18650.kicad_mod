@@ -6,18 +6,19 @@
 	(property "Reference" "USB_CHRG**"
 		(at 12.5 7.5 0)
 		(layer "F.SilkS")
-		(uuid "438f0490-67a2-45dc-a040-0d4e401a49e6")
+		(uuid "47bf73b3-9634-49b7-a25b-2e4bd94f0649")
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 		)
 	)
 	(property "Value" "TP4056-18650"
 		(at 12.5 10 0)
 		(layer "F.Fab")
-		(uuid "0cf171d3-19fd-42eb-b2b9-feb4f6e95ab8")
+		(uuid "7d1db76b-8187-4264-9710-79371a160096")
 		(effects
 			(font
 				(size 1 1)
@@ -29,7 +30,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "21213bee-bf4b-4cdb-bece-2a57b20236d8")
+		(uuid "e46b3c9d-561b-4bc8-bae3-4ad7f3c98af1")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -41,7 +42,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "9b2ebe82-d8ff-4fb4-b7b6-8b258c3b8e32")
+		(uuid "fd57f4f7-fca0-41fb-80b5-5f1f20e5742e")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -51,30 +52,10 @@
 	)
 	(attr through_hole)
 	(fp_line
-		(start 0 0)
-		(end 26.3 0)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "6d01fe1a-c44e-4c55-bfa7-18581e7fc311")
-	)
-	(fp_line
-		(start 0 17.8)
-		(end 0 0)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "9ec73fff-606e-4d73-84c0-15b46f3c9093")
-	)
-	(fp_line
 		(start 0.4 7.2)
 		(end 2.9 7.2)
 		(stroke
-			(width 0.15)
+			(width 0.2)
 			(type solid)
 		)
 		(layer "F.SilkS")
@@ -84,7 +65,7 @@
 		(start 0.4 11)
 		(end 0.4 7.3)
 		(stroke
-			(width 0.15)
+			(width 0.2)
 			(type solid)
 		)
 		(layer "F.SilkS")
@@ -94,7 +75,7 @@
 		(start 2.9 7.2)
 		(end 2.9 11)
 		(stroke
-			(width 0.15)
+			(width 0.2)
 			(type solid)
 		)
 		(layer "F.SilkS")
@@ -104,101 +85,24 @@
 		(start 2.9 11)
 		(end 0.4 11)
 		(stroke
-			(width 0.15)
+			(width 0.2)
 			(type solid)
 		)
 		(layer "F.SilkS")
 		(uuid "2c194c92-37a3-474e-bac5-ff5a83b503a7")
 	)
-	(fp_line
-		(start 26.1 2.5)
-		(end 26.1 15.4)
+	(fp_poly
+		(pts
+			(xy 0 18.034) (xy 0 -0.254) (xy 28.4 -0.254) (xy 28.4 2.5) (xy 26.67 2.5) (xy 26.67 15.4) (xy 28.4 15.4)
+			(xy 28.4 18.034)
+		)
 		(stroke
-			(width 0.15)
+			(width 0.2)
 			(type solid)
 		)
+		(fill no)
 		(layer "F.SilkS")
-		(uuid "6e7db5c6-1ac3-4728-92a3-951b9477167d")
-	)
-	(fp_line
-		(start 26.1 15.4)
-		(end 26.4 15.4)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "f38fcb93-e05a-46b2-9525-338f32fc59ba")
-	)
-	(fp_line
-		(start 26.3 0)
-		(end 28.4 0)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "a5e4e5e3-1766-42db-80d9-e540c3bf811c")
-	)
-	(fp_line
-		(start 26.3 15.4)
-		(end 28.4 15.4)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "1200403c-fe2e-47d0-af67-52952da06352")
-	)
-	(fp_line
-		(start 28.4 0)
-		(end 28.4 2.5)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "42d128ef-9926-4d8c-8d6e-caaf2a2734c9")
-	)
-	(fp_line
-		(start 28.4 2.5)
-		(end 26.1 2.5)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "1ff67370-3f7e-489f-ae8c-61195fb758c8")
-	)
-	(fp_line
-		(start 28.4 15.4)
-		(end 28.4 15.7)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "351baafc-c4ff-4d4a-907d-c91edd76ffa3")
-	)
-	(fp_line
-		(start 28.4 15.7)
-		(end 28.4 17.8)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "4a7db861-dbf5-4fc9-b5de-bd5cef7af322")
-	)
-	(fp_line
-		(start 28.4 17.8)
-		(end 0 17.8)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "2e8af5cd-6b57-48ef-befc-fba900dfaa7a")
+		(uuid "c45aa146-aa74-40fe-bde6-0675a4dcb5f9")
 	)
 	(fp_text user "Out-"
 		(at 20.9 16.2 0)
@@ -207,7 +111,8 @@
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 		)
 	)
@@ -218,7 +123,8 @@
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 			(justify right)
 		)
@@ -230,18 +136,20 @@
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 		)
 	)
 	(fp_text user "GND"
-		(at 1.8 13.7 0)
+		(at 1.8 13.335 0)
 		(layer "F.SilkS")
 		(uuid "4b34671c-4b5e-4c4f-836c-765acba602cb")
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 		)
 	)
@@ -252,7 +160,8 @@
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 		)
 	)
@@ -274,7 +183,8 @@
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 			(justify right)
 		)
@@ -291,13 +201,14 @@
 		)
 	)
 	(fp_text user "5v"
-		(at 1.7 4.1 0)
+		(at 1.7 4.445 0)
 		(layer "F.SilkS")
 		(uuid "d92f3a2f-5933-46ad-94a8-bc8ad26bc8b1")
 		(effects
 			(font
 				(size 1 1)
-				(thickness 0.15)
+				(thickness 0.2)
+				(bold yes)
 			)
 		)
 	)
@@ -352,7 +263,7 @@
 	(embedded_fonts no)
 	(model "${KIPRJMOD}/3dmodels/BatteryCharger.step"
 		(offset
-			(xyz 14.5 -9 3)
+			(xyz 14.5 -9 2)
 		)
 		(scale
 			(xyz 1 1 1)

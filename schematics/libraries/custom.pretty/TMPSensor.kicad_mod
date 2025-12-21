@@ -67,17 +67,16 @@
 		(layer "F.SilkS")
 		(uuid "c9b9db9b-046c-4492-9f2f-c16dd90bdbce")
 	)
-	(fp_poly
-		(pts
-			(xy 6.35 1.27) (xy -1.27 1.27) (xy -1.27 -9.525) (xy 6.35 -9.525)
-		)
+	(fp_rect
+		(start -1.27 -9.525)
+		(end 6.35 1.27)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(fill no)
 		(layer "F.CrtYd")
-		(uuid "9aaf63d3-4e1c-4cd8-b9b9-7441ba4d6b37")
+		(uuid "e1c72f94-467c-4f86-be74-172d1f040446")
 	)
 	(fp_text user "${REFERENCE}"
 		(at 2.54 7.62 0)

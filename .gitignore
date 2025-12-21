@@ -3,3 +3,4 @@ schematics/schematics-backups
 .venv
 schematics/schematics.step
 schematics/*.lck
+board/build/

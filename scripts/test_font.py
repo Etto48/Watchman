@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-font_path = "fonts/3x5.png"
+font_path = "assets/font3x5.png"
 font_size = (3, 5)
 text = "Hello, World!"
 

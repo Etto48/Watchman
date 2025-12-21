@@ -829,7 +829,7 @@
 				)
 			)
 		)
-		(property "Footprint" "custom:LIPOBattery Header"
+		(property "Footprint" "custom:PowerHeader"
 			(at 0 -2.032 0)
 			(effects
 				(font

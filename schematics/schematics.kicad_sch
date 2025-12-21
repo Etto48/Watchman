@@ -1065,8 +1065,7 @@
 						(type default)
 					)
 					(fill
-						(type color)
-						(color 255 255 194 1)
+						(type background)
 					)
 				)
 			)
@@ -1538,7 +1537,7 @@
 					)
 				)
 			)
-			(property "Footprint" "custom:LIPOBattery Header"
+			(property "Footprint" "custom:PowerHeader"
 				(at 0 -2.032 0)
 				(effects
 					(font
@@ -2124,28 +2123,6 @@
 			)
 		)
 	)
-	(global_label "SDA"
-		(shape input)
-		(at 76.2 87.63 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1635b5ec-abda-4fcc-a4ff-d4df984ce330")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 69.6467 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "BUZZER"
 		(shape input)
 		(at 111.76 74.93 0)
@@ -2186,6 +2163,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "RIGHT"
+		(shape input)
+		(at 76.2 87.63 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2d8630ba-c829-4d0f-97ed-e5f938f5f42e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 67.7719 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -2432,28 +2431,6 @@
 			)
 		)
 	)
-	(global_label "RIGHT"
-		(shape input)
-		(at 111.76 77.47 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "5e60df75-947c-4d57-b72d-97c0319b5aa2")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 120.1881 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B"
 		(shape input)
 		(at 76.2 90.17 180)
@@ -2626,6 +2603,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SDA"
+		(shape input)
+		(at 111.76 77.47 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "ac7b0b1d-559a-4f57-af17-74118c2e44d0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 118.3133 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -3725,7 +3724,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "custom:LIPOBattery Header"
+		(property "Footprint" "custom:PowerHeader"
 			(at 226.06 107.442 0)
 			(effects
 				(font
@@ -3863,7 +3862,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Buzzer_Beeper:Buzzer_12x9.5RM7.6"
+		(property "Footprint" "Buzzer_Beeper:MagneticBuzzer_StarMicronics_QMX"
 			(at 118.11 111.125 90)
 			(effects
 				(font
@@ -5098,7 +5097,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "custom:LIPOBattery Header"
+		(property "Footprint" "custom:PowerHeader BACKSIDE"
 			(at 226.06 118.872 0)
 			(effects
 				(font

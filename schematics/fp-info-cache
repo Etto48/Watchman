@@ -1,4 +1,4 @@
-26443615580983955
+26445384260978514
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -105630,19 +105630,26 @@ Through hole angled pin header THT 1x05 2.54mm single row
 5
 5
 custom
-LIPOBattery Header
-Through hole angled pin header, 1x02, 2.54mm pitch, 6mm pin length, single row
-Through hole angled pin header THT 1x02 2.54mm single row
-0
-2
-2
-custom
 MODULE_ESP32-C3_SUPERMINI_TH
 
 
 0
 16
 16
+custom
+PowerHeader
+Through hole angled pin header, 1x02, 2.54mm pitch, 6mm pin length, single row
+Through hole angled pin header THT 1x02 2.54mm single row
+0
+2
+2
+custom
+PowerHeader BACKSIDE
+Through hole angled pin header, 1x02, 2.54mm pitch, 6mm pin length, single row
+Through hole angled pin header THT 1x02 2.54mm single row
+0
+2
+2
 custom
 TMPSensor
 
