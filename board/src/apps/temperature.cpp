@@ -5,6 +5,7 @@
 #include "core/events.hpp"
 #include "core/menu.hpp"
 #include "core/sound.hpp"
+#include "core/timekeeper.hpp"
 #include "constants.hpp"
 
 namespace apps::temperature {
@@ -12,12 +13,7 @@ namespace apps::temperature {
 
     void draw(Adafruit_SSD1306& display) {
         display.clearDisplay();
-        display.setTextSize(1);
-        display.fillRect(0, 0, SCREEN_WIDTH, 8, SSD1306_WHITE);
-        display.setTextColor(SSD1306_BLACK);
-        display.setCursor(0, 0);
-        display.println(" Temperature");
-        display.setTextColor(SSD1306_WHITE);
+        menu::draw_generic_titlebar(display, "Temperature");
         display.setTextSize(2);
         display.setCursor(24, 28);
         if (isnan(last_temperature)) {
@@ -30,8 +26,8 @@ namespace apps::temperature {
     }
 
     void app(Adafruit_SSD1306& display) {
-        static uint64_t last_update_time = 0;
-        constexpr uint64_t update_interval_ms = 5000;
+        static uint64_t last_update_time_us = 0;
+        constexpr uint64_t update_interval_us = 5000000;
         events::Event ev = events::get_next_event();
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
@@ -46,9 +42,9 @@ namespace apps::temperature {
                 }
                 break;
             case events::EventType::NONE:
-                if (isnan(last_temperature) || last_update_time + update_interval_ms <= millis()) {
+                if (isnan(last_temperature) || last_update_time_us + update_interval_us <= timekeeper::now_us()) {
                     last_temperature = temperatureRead();
-                    last_update_time = millis();
+                    last_update_time_us = timekeeper::now_us();
                     menu::set_dirty();
                 }
                 menu::upkeep(display);

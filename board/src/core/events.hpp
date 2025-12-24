@@ -67,6 +67,9 @@ namespace events {
     // Disables event handling by detaching all interrupts.
     void disable_events();
 
-    // Returns the timestamp of the last event processed.
+    // Returns the timestamp of the last event processed (in microseconds).
     uint64_t get_last_event_timestamp();
+
+    // Updates the timestamp with the current time.
+    void update_last_event_timestamp();
 }

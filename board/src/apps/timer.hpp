@@ -2,7 +2,7 @@
 
 #include <Adafruit_SSD1306.h>
 
-namespace apps::time {
-    void draw(Adafruit_SSD1306& display);
+namespace apps::timer {
     void app(Adafruit_SSD1306& display);
+    void draw(Adafruit_SSD1306& display);
 }

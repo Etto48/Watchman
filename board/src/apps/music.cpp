@@ -7,9 +7,10 @@
 #include "melodies/twinkle.hpp"
 #include "melodies/joy.hpp"
 #include "images/playing_music.hpp"
+#include "core/logger.hpp"
 
 namespace apps::music {
-    uint64_t cursor = 0;
+    size_t cursor = 0;
     bool currently_playing = false;
 
     constexpr const char* melodies[] = {
@@ -18,36 +19,24 @@ namespace apps::music {
         "Ode to Joy"
     };
 
-    void play_melody() {
-        switch (cursor) {
-            case 0:
-                sound::async_play_interruptible_melody(melodies::cmajor, sizeof(melodies::cmajor)/sizeof(melodies::cmajor[0]));
-                break;
-            case 1:
-                sound::async_play_interruptible_melody(melodies::twinkle, sizeof(melodies::twinkle)/sizeof(melodies::twinkle[0]));
-                break;
-            case 2:
-                sound::async_play_interruptible_melody(melodies::joy, sizeof(melodies::joy)/sizeof(melodies::joy[0]));
-                break;
-            default:
-                break;
-        }
+    constexpr const sound::Note *melodies_notes[] = {
+        melodies::cmajor,
+        melodies::twinkle,
+        melodies::joy
+    };
+
+    constexpr size_t melodies_lengths[] = {
+        sizeof(melodies::cmajor)/sizeof(melodies::cmajor[0]),
+        sizeof(melodies::twinkle)/sizeof(melodies::twinkle[0]),
+        sizeof(melodies::joy)/sizeof(melodies::joy[0])
+    };
+
+    void menu_action(size_t cursor, Adafruit_SSD1306& display) {
+        sound::async_play_interruptible_melody(
+            melodies_notes[cursor], 
+            melodies_lengths[cursor]); 
         currently_playing = true;
-        menu::set_dirty();
-    }
-
-    void cursor_up() {
-        if (cursor == 0) {
-            cursor = sizeof(melodies)/sizeof(melodies[0]) - 1;
-        } else {
-            --cursor;
-        }
-        menu::set_dirty();
-    }
-
-    void cursor_down() {
-        cursor = (cursor + 1) % (sizeof(melodies)/sizeof(melodies[0]));
-        menu::set_dirty();
+        logger::info("Playing melody: %s", melodies[cursor]);
     }
 
     void app(Adafruit_SSD1306& display) {
@@ -68,29 +57,9 @@ namespace apps::music {
                             break;
                     }
                 } else {
-                    switch (ev.buttonEvent.button) {
-                        case events::Button::UP:
-                            cursor_up();
-                            sound::play_navigation_tone();
-                            break;
-                        case events::Button::DOWN:
-                            cursor_down();
-                            sound::play_navigation_tone();
-                            break;
-                        case events::Button::A:
-                            play_melody();
-                            break;
-                        case events::Button::B:
-                            menu::current_app = menu::App::NONE;
-                            sound::play_cancel_tone();
-                            menu::set_dirty();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
+                    menu::handle_generic_menu_navigation(ev, sizeof(melodies)/sizeof(melodies[0]), cursor, display, menu_action, false);
                 }
-                
+                break;
             case events::EventType::NONE:
                 if (currently_playing) {
                     if (!sound::is_melody_playing()) {
@@ -108,31 +77,13 @@ namespace apps::music {
     void draw(Adafruit_SSD1306& display) {
         display.clearDisplay();
         if (currently_playing) {
-            display.setTextSize(1);
-            display.setTextColor(SSD1306_BLACK);
             display.drawBitmap(0, 0, images::playing_music, SCREEN_WIDTH, SCREEN_HEIGHT, SSD1306_WHITE);
-            display.setCursor(0, 0);
-            display.println(" Playing...");
+            menu::draw_generic_titlebar(display, "Playing Melody");
             display.setCursor(20, 54);
-            display.setTextColor(SSD1306_WHITE);
             display.println("Press A to stop");
             display.display();
         } else {
-            display.setTextSize(1);
-            display.setTextColor(SSD1306_BLACK);
-            display.fillRect(0, 0, SCREEN_WIDTH, 8, SSD1306_WHITE);
-            display.setCursor(0, 0);
-            display.println(" Music Player");
-            display.setTextColor(SSD1306_WHITE);
-            for (size_t i = 0; i < sizeof(melodies)/sizeof(melodies[0]); ++i) {
-                if (i == cursor) {
-                    display.print("> ");
-                } else {
-                    display.print("  ");
-                }
-                display.println(melodies[i]);
-            }
-            display.display();
+            menu::draw_generic_menu(display, "Select Melody", melodies, sizeof(melodies)/sizeof(melodies[0]), cursor);
         }
     }
 }

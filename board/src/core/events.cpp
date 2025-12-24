@@ -2,8 +2,10 @@
 #include <Arduino.h>
 
 #include "core/events.hpp"
+#include "core/logger.hpp"
+#include "core/events.hpp"
+#include "core/timekeeper.hpp"
 #include "constants.hpp"
-#include "logger.hpp"
 
 namespace events {
     QueueHandle_t event_queue = nullptr;
@@ -28,7 +30,7 @@ namespace events {
     }
 
     void IRAM_ATTR handle_button_interrupt(Button button, bool pressed) {
-        uint64_t timestamp = esp_timer_get_time() / 1000;
+        uint64_t timestamp = timekeeper::now_us();
         Event ev;
         if (pressed) {
             ev.type = EventType::BUTTON_PRESS;
@@ -42,7 +44,7 @@ namespace events {
         }
 
         auto button_index = static_cast<uint8_t>(button) * 2 + (pressed ? 0 : 1);
-        if (timestamp - last_button_event_time[button_index] < DEBOUNCE_DELAY_MS) {
+        if (last_button_event_time[button_index] + DEBOUNCE_DELAY_US > timestamp) {
             return; // Debounce: ignore this event
         }
         last_button_event_time[button_index] = timestamp;
@@ -149,7 +151,7 @@ namespace events {
         attachInterrupt(digitalPinToInterrupt(LEFT_PIN), ISRs::button_LEFT, CHANGE);
         attachInterrupt(digitalPinToInterrupt(RIGHT_PIN), ISRs::button_RIGHT, CHANGE);
         start_timer_interrupt();
-        last_event_timestamp = esp_timer_get_time() / 1000;
+        update_last_event_timestamp();
     }
 
     void disable_events() {
@@ -164,5 +166,8 @@ namespace events {
     uint64_t get_last_event_timestamp() {
         return last_event_timestamp;
     }
-}
 
+    void update_last_event_timestamp() {
+        last_event_timestamp = timekeeper::now_us();
+    }
+}

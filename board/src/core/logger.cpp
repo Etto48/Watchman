@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include "core/logger.hpp"
+#include "core/timekeeper.hpp"
 #include "constants.hpp"
 
 namespace logger {
@@ -40,7 +41,7 @@ namespace logger {
 
     void log_message(LogLevel level, const char* fmt, va_list args) {
         char buffer[256];
-        auto us = esp_timer_get_time();
+        auto us = timekeeper::now_us();
         auto seconds = us / 1000000;
         auto micros = us % 1000000;
         auto color = LogLevel_to_color_code(level);

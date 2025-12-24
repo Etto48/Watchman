@@ -127,7 +127,7 @@ namespace sound {
     bool play_interruptible_melody(const Note* melody, size_t length);
 
     // Asynchronously plays a melody that can be interrupted by calling stop_async_interruptible_melody().
-    void async_play_interruptible_melody(const Note* melody, size_t length);
+    void async_play_interruptible_melody(const Note* melody, size_t length, bool loop = false);
 
     // Stops the currently playing asynchronous interruptible melody.
     void stop_async_interruptible_melody();

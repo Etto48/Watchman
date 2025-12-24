@@ -2,12 +2,18 @@
 
 #include <Adafruit_SSD1306.h>
 
+#include "core/events.hpp"
+
 namespace menu {
     enum class App {
         NONE = 0,
-        TEMPERATURE,
-        TIME,
-        MUSIC
+        TEMPERATURE = 1,
+        CLOCK = 2,
+        STOPWATCH = 3,
+        TIMER = 4,
+        MUSIC = 5,
+        WEATHER = 6,
+        DEEPSLEEP = 7
     };
     
     // Request to redraw the display
@@ -23,11 +29,35 @@ namespace menu {
     void init();
 
     // This function is called when there is no event to process
-    void upkeep(Adafruit_SSD1306& display);
+    void upkeep(Adafruit_SSD1306& display, uint64_t delay_ms = 100);
 
     // Draw the WiFi icon based on the last known WiFi status
     void draw_wifi_icon(Adafruit_SSD1306& display);
 
     // Draw the battery icon based on the last known battery level
     void draw_battery_icon(Adafruit_SSD1306& display);
+
+    // Helper to draw a title bar
+    void draw_generic_titlebar(Adafruit_SSD1306& display, const char* title);
+
+    // Helper to unify drawing of multi-option menus
+    void draw_generic_menu(Adafruit_SSD1306& display, const char* title, const char *const options[], size_t option_count, size_t selected_index);
+
+    // Helper to move cursor up in multi-option menus
+    void generic_cursor_up(size_t &cursor, size_t option_count);
+
+    // Helper to move cursor down in multi-option menus
+    void generic_cursor_down(size_t &cursor, size_t option_count);
+
+    // Helper to unify navigation in multi-option menus
+    // Action callback is called when the A button is pressed
+    void handle_generic_menu_navigation(
+        events::Event ev, 
+        size_t option_count, 
+        size_t &cursor, 
+        Adafruit_SSD1306& display,
+        void(*action)(size_t cursor, Adafruit_SSD1306& display), 
+        bool play_confirm_tone = true, 
+        bool play_cancel_tone = true, 
+        bool play_navigation_tone = true);
 }

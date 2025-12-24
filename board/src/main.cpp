@@ -13,6 +13,7 @@
 #include "core/menu.hpp"
 #include "core/wifi.hpp"
 #include "core/logger.hpp"
+#include "core/timekeeper.hpp"
 
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
@@ -26,9 +27,11 @@ void setup() {
   auto wakeup_cause = esp_sleep_get_wakeup_cause();
   if (wakeup_cause == ESP_SLEEP_WAKEUP_UNDEFINED) {
     // Fresh boot
+    timekeeper::first_boot();
     logger::info("WatchMan Starting...");
   } else {
     // Wake from sleep
+    timekeeper::wakeup();
     logger::info("WatchMan Restarting from sleep...");
   }
   ledcSetup(0, 5000, 8); // initialize ledc state so it doesn't conflict with i2c
@@ -53,7 +56,7 @@ void setup() {
   }
   
   display.ssd1306_command(SSD1306_DISPLAYON);
-  display_image(images::logo, display);
+  image::display_image(images::logo, display);
   logger::info("Display Initialized.");
 
   wifi::connect();

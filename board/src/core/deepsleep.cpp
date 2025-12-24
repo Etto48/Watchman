@@ -9,15 +9,17 @@
 #include "core/jingle.hpp"
 #include "core/logger.hpp"
 #include "core/menu.hpp"
+#include "deepsleep.hpp"
 
 namespace deepsleep {
     void deepsleep(Adafruit_SSD1306& display) {
-        display_image(images::deepsleep, display);
+        sound::stop_async_interruptible_melody(); // Stop any playing melody
+        image::display_image(images::deepsleep, display);
         sound::play_melody(deepsleep_jingle_melody, sizeof(deepsleep_jingle_melody)/sizeof(deepsleep_jingle_melody[0]));
         display.ssd1306_command(SSD1306_DISPLAYOFF);
         gpio_wakeup_enable(static_cast<gpio_num_t>(A_PIN), GPIO_INTR_LOW_LEVEL);
         esp_sleep_enable_gpio_wakeup();
-        esp_sleep_enable_timer_wakeup(DEEPSLEEP_GRACE_PERIOD_MS * 1000ULL);
+        esp_sleep_enable_timer_wakeup(DEEPSLEEP_GRACE_PERIOD_US);
         logger::info("Entering light-sleep.");
         esp_light_sleep_start();
         auto wakeup_cause = esp_sleep_get_wakeup_cause();
@@ -33,6 +35,7 @@ namespace deepsleep {
             logger::info("Woke up from unknown reason, continuing execution.");
         }
         events::clear_event_queue(); // Avoid sending the button press event that woke us up
+        events::update_last_event_timestamp(); // Prevent immediate re-entry into deepsleep
         display.ssd1306_command(SSD1306_DISPLAYON);
         sound::play_cancel_tone();
         menu::set_dirty();
