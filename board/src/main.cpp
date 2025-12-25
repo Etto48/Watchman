@@ -59,8 +59,8 @@ void setup() {
   image::display_image(images::logo, display);
   logger::info("Display Initialized.");
 
-  wifi::connect();
-  logger::info("Initiated WiFi Connection.");
+  wifi::init();
+  logger::info("WiFi System Initialized.");
 
   events::enable_events();
   logger::info("Event System Initialized.");

@@ -13,7 +13,8 @@ namespace menu {
         TIMER = 4,
         MUSIC = 5,
         WEATHER = 6,
-        DEEPSLEEP = 7
+        DEEPSLEEP = 7,
+        SETTINGS = 8
     };
     
     // Request to redraw the display
@@ -60,4 +61,33 @@ namespace menu {
         bool play_confirm_tone = true, 
         bool play_cancel_tone = true, 
         bool play_navigation_tone = true);
+
+
+    struct KBStatus {
+        size_t selected_key = 0;
+        bool shift_active = false;
+        bool caps_active = false;
+    };
+
+    enum class KBEvent {
+        NONE = 0, // User did nothing or navigated without selecting a key
+        ENTERED_CHARACTER,
+        DELETED_CHARACTER,
+        TAB_PRESSED, // Useful for autocompletion
+        ENTER_PRESSED,
+        KEYBOARD_CLOSED,
+    };
+
+    // Handle keyboard input events, to be used along with menu::draw_keyboard
+    // Returns the KBEvent that occurred if any
+    KBEvent handle_keyboard_input(
+        events::Event ev,
+        KBStatus& kb_status,
+        String &input_buffer);
+    
+    // Draw a keyboard interface, to be used along with menu::handle_keyboard_input
+    void draw_keyboard(
+        Adafruit_SSD1306& display, 
+        const KBStatus& kb_status,
+        const String& input_buffer);
 }

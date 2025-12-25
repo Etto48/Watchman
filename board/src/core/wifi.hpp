@@ -11,6 +11,6 @@ namespace wifi {
     // Get the current WiFi status and approximate signal strength
     WiFiStatus get_status();
 
-    // Start a WiFi connection, non-blocking
-    void connect();
+    // Initialize the WiFi system and start the WiFi management task
+    void init();
 }

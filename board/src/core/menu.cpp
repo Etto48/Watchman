@@ -10,6 +10,7 @@
 #include "apps/deepsleep.hpp"
 #include "apps/stopwatch.hpp"
 #include "apps/timer.hpp"
+#include "apps/settings.hpp"
 #include "core/deepsleep.hpp"
 #include "constants.hpp"
 #include "images/wifi_0.hpp"
@@ -25,6 +26,7 @@
 #include "core/battery.hpp"
 #include "core/menu.hpp"
 #include "core/timekeeper.hpp"
+#include "menu.hpp"
 
 namespace menu {
     static SemaphoreHandle_t status_mutex = nullptr;
@@ -42,7 +44,8 @@ namespace menu {
         "Timer",
         "Music",
         "Weather",
-        "Deepsleep"
+        "Deepsleep",
+        "Settings"
     };
     constexpr void(*app_mains[])(Adafruit_SSD1306&) = {
         apps::temperature::app,
@@ -51,7 +54,8 @@ namespace menu {
         apps::timer::app,
         apps::music::app,
         apps::weather::app,
-        apps::deepsleep::app
+        apps::deepsleep::app,
+        apps::settings::app
     };
     constexpr void(*app_draws[])(Adafruit_SSD1306&) = {
         apps::temperature::draw,
@@ -60,7 +64,8 @@ namespace menu {
         apps::timer::draw,
         apps::music::draw,
         apps::weather::draw,
-        apps::deepsleep::draw
+        apps::deepsleep::draw,
+        apps::settings::draw
     };
 
     void draw_wifi_icon(Adafruit_SSD1306& display) {
@@ -328,5 +333,404 @@ namespace menu {
                 }
                 break;
         }
+    }
+
+    enum class KBKey {
+        S_backtick, S_tilde, S_exclam, S_at, S_hash, S_dollar, S_percent, S_caret, S_ampersand, S_asterisk, 
+        S_left_paren, S_right_paren, S_minus, S_underscore, S_equal, S_plus, S_left_brace, S_right_brace,
+        S_left_bracket, S_right_bracket, S_backslash, S_pipe, S_semicolon, S_colon, S_quote, S_double_quote,
+        S_comma, S_less_than, S_period, S_greater_than, S_slash, S_question,
+        N_1, N_2, N_3, N_4, N_5, N_6, N_7, N_8, N_9, N_0,
+        A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
+        TAB, CAPS, SPACE, BACKSPACE, ENTER, SHIFT, NONE
+    };
+
+    const char* kbkey_to_string(KBKey key) {
+        switch (key) {
+            case KBKey::S_backtick: return "`";
+            case KBKey::S_tilde: return "~";
+            case KBKey::S_exclam: return "!";
+            case KBKey::S_at: return "@";
+            case KBKey::S_hash: return "#";
+            case KBKey::S_dollar: return "$";
+            case KBKey::S_percent: return "%";
+            case KBKey::S_caret: return "^";
+            case KBKey::S_ampersand: return "&";
+            case KBKey::S_asterisk: return "*";
+            case KBKey::S_left_paren: return "(";
+            case KBKey::S_right_paren: return ")";
+            case KBKey::S_minus: return "-";
+            case KBKey::S_underscore: return "_";
+            case KBKey::S_equal: return "=";
+            case KBKey::S_plus: return "+";
+            case KBKey::S_left_brace: return "{";
+            case KBKey::S_right_brace: return "}";
+            case KBKey::S_left_bracket: return "[";
+            case KBKey::S_right_bracket: return "]";
+            case KBKey::S_backslash: return "\\";
+            case KBKey::S_pipe: return "|";
+            case KBKey::S_semicolon: return ";";
+            case KBKey::S_colon: return ":";
+            case KBKey::S_quote: return "'";
+            case KBKey::S_double_quote: return "\"";
+            case KBKey::S_comma: return ",";
+            case KBKey::S_less_than: return "<";
+            case KBKey::S_period: return ".";
+            case KBKey::S_greater_than: return ">";
+            case KBKey::S_slash: return "/";
+            case KBKey::S_question: return "?";
+            case KBKey::N_1: return "1";
+            case KBKey::N_2: return "2";
+            case KBKey::N_3: return "3";
+            case KBKey::N_4: return "4";
+            case KBKey::N_5: return "5";
+            case KBKey::N_6: return "6";
+            case KBKey::N_7: return "7";
+            case KBKey::N_8: return "8";
+            case KBKey::N_9: return "9";
+            case KBKey::N_0: return "0";
+            case KBKey::A: return "A";
+            case KBKey::B: return "B";
+            case KBKey::C: return "C";
+            case KBKey::D: return "D";
+            case KBKey::E: return "E";
+            case KBKey::F: return "F";
+            case KBKey::G: return "G";
+            case KBKey::H: return "H";
+            case KBKey::I: return "I";
+            case KBKey::J: return "J";
+            case KBKey::K: return "K";
+            case KBKey::L: return "L";
+            case KBKey::M: return "M";
+            case KBKey::N: return "N";
+            case KBKey::O: return "O";
+            case KBKey::P: return "P";
+            case KBKey::Q: return "Q";
+            case KBKey::R: return "R";
+            case KBKey::S: return "S";
+            case KBKey::T: return "T";
+            case KBKey::U: return "U";
+            case KBKey::V: return "V";
+            case KBKey::W: return "W";
+            case KBKey::X: return "X";
+            case KBKey::Y: return "Y";
+            case KBKey::Z: return "Z";
+            case KBKey::a: return "a";
+            case KBKey::b: return "b";
+            case KBKey::c: return "c";
+            case KBKey::d: return "d";
+            case KBKey::e: return "e";
+            case KBKey::f: return "f";
+            case KBKey::g: return "g";
+            case KBKey::h: return "h";
+            case KBKey::i: return "i";
+            case KBKey::j: return "j";
+            case KBKey::k: return "k";
+            case KBKey::l: return "l";
+            case KBKey::m: return "m";
+            case KBKey::n: return "n";
+            case KBKey::o: return "o";
+            case KBKey::p: return "p";
+            case KBKey::q: return "q";
+            case KBKey::r: return "r";
+            case KBKey::s: return "s";
+            case KBKey::t: return "t";
+            case KBKey::u: return "u";
+            case KBKey::v: return "v";
+            case KBKey::w: return "w";
+            case KBKey::x: return "x";
+            case KBKey::y: return "y";
+            case KBKey::z: return "z";
+            case KBKey::TAB: return " TAB ";
+            case KBKey::CAPS: return " CAPS ";
+            case KBKey::SPACE: return " SPACE ";
+            case KBKey::BACKSPACE: return " BS ";
+            case KBKey::ENTER: return " ENTER ";
+            case KBKey::SHIFT: return " SHIFT ";
+            default: return "";
+        }
+    }
+    
+    template<uint16_t Keys, uint8_t Rows>
+    struct KBLayout {
+        const KBKey normal[Keys];
+        const KBKey shifted[Keys];
+        const uint16_t cols_per_row[Rows];
+    };
+
+    const KBLayout<61, 6> keyboard_layout = {
+        .normal = {
+            KBKey::S_backtick, KBKey::N_1, KBKey::N_2, KBKey::N_3, KBKey::N_4, KBKey::N_5, KBKey::N_6, KBKey::N_7, KBKey::N_8, KBKey::N_9, KBKey::N_0, KBKey::S_minus, KBKey::S_equal,
+            KBKey::q, KBKey::w, KBKey::e, KBKey::r, KBKey::t, KBKey::y, KBKey::u, KBKey::i, KBKey::o, KBKey::p, KBKey::S_left_bracket, KBKey::S_right_bracket, KBKey::S_backslash,
+            KBKey::a, KBKey::s, KBKey::d, KBKey::f, KBKey::g, KBKey::h, KBKey::j, KBKey::k, KBKey::l, KBKey::S_semicolon, KBKey::S_quote,
+            KBKey::z, KBKey::x, KBKey::c, KBKey::v, KBKey::b, KBKey::n, KBKey::m, KBKey::S_comma, KBKey::S_period, KBKey::S_slash,
+            KBKey::SHIFT, KBKey::CAPS, KBKey::TAB,
+            KBKey::BACKSPACE, KBKey::SPACE, KBKey::ENTER
+        },
+        .shifted = {
+            KBKey::S_tilde, KBKey::S_exclam, KBKey::S_at, KBKey::S_hash, KBKey::S_dollar, KBKey::S_percent, KBKey::S_caret, KBKey::S_ampersand, KBKey::S_asterisk, KBKey::S_left_paren, KBKey::S_right_paren, KBKey::S_underscore, KBKey::S_plus,
+            KBKey::Q, KBKey::W, KBKey::E, KBKey::R, KBKey::T, KBKey::Y, KBKey::U, KBKey::I, KBKey::O, KBKey::P, KBKey::S_left_brace, KBKey::S_right_brace, KBKey::S_pipe,
+            KBKey::A, KBKey::S, KBKey::D, KBKey::F, KBKey::G, KBKey::H, KBKey::J, KBKey::K, KBKey::L, KBKey::S_colon, KBKey::S_double_quote,
+            KBKey::Z, KBKey::X, KBKey::C, KBKey::V, KBKey::B, KBKey::N, KBKey::M, KBKey::S_less_than, KBKey::S_greater_than, KBKey::S_question,
+            KBKey::SHIFT, KBKey::CAPS, KBKey::TAB,
+            KBKey::BACKSPACE, KBKey::SPACE, KBKey::ENTER
+        },
+        .cols_per_row = {
+            13, 13, 11, 10, 3, 3
+        }
+    };
+
+    uint8_t get_kb_row(size_t selected_key) {
+        size_t key_index = 0;
+        for (size_t row = 0; row < sizeof(keyboard_layout.cols_per_row)/sizeof(keyboard_layout.cols_per_row[0]); ++row) {
+            size_t cols = keyboard_layout.cols_per_row[row];
+            if (selected_key < key_index + cols) {
+                return row;
+            }
+            key_index += cols;
+        }
+        return 0;
+    }
+
+    void get_kb_min_max_index_for_row(uint8_t row, size_t & min_index, size_t & max_index) {
+        size_t key_index = 0;
+        for (size_t r = 0; r < sizeof(keyboard_layout.cols_per_row)/sizeof(keyboard_layout.cols_per_row[0]); ++r) {
+            size_t cols = keyboard_layout.cols_per_row[r];
+            if (r == row) {
+                min_index = key_index;
+                max_index = key_index + cols - 1;
+                return;
+            }
+            key_index += cols;
+        }
+        min_index = 0;
+        max_index = 0;
+    }
+
+    void kb_move_left(KBStatus & kb_status) {
+        auto current_row = get_kb_row(kb_status.selected_key);
+        size_t min_index, max_index;
+        get_kb_min_max_index_for_row(current_row, min_index, max_index);
+        if (kb_status.selected_key == min_index) {
+            kb_status.selected_key = max_index;
+        } else {
+            kb_status.selected_key--;
+        }
+    }
+
+    void kb_move_right(KBStatus & kb_status) {
+        auto current_row = get_kb_row(kb_status.selected_key);
+        size_t min_index, max_index;
+        get_kb_min_max_index_for_row(current_row, min_index, max_index);
+        if (kb_status.selected_key == max_index) {
+            kb_status.selected_key = min_index;
+        } else {
+            kb_status.selected_key++;
+        }
+    }
+
+    void kb_move_up(KBStatus & kb_status) {
+        auto current_row = get_kb_row(kb_status.selected_key);
+        uint8_t target_row;
+        if (current_row == 0) {
+            target_row = sizeof(keyboard_layout.cols_per_row)/sizeof(keyboard_layout.cols_per_row[0]) - 1;
+        } else {
+            target_row = current_row - 1;
+        }
+        // Lerp to the closest key in the target row
+        size_t current_row_min, current_row_max;
+        get_kb_min_max_index_for_row(current_row, current_row_min, current_row_max);
+        size_t target_row_min, target_row_max;
+        get_kb_min_max_index_for_row(target_row, target_row_min, target_row_max);
+        size_t current_row_cols = current_row_max - current_row_min + 1;
+        size_t target_row_cols = target_row_max - target_row_min + 1;
+        size_t position_in_row = kb_status.selected_key - current_row_min;
+        size_t target_position = position_in_row * target_row_cols / current_row_cols;
+        kb_status.selected_key = target_row_min + target_position;
+    }
+
+    void kb_move_down(KBStatus & kb_status) {
+        auto current_row = get_kb_row(kb_status.selected_key);
+        uint8_t target_row;
+        if (current_row == sizeof(keyboard_layout.cols_per_row)/sizeof(keyboard_layout.cols_per_row[0]) - 1) {
+            target_row = 0;
+        } else {
+            target_row = current_row + 1;
+        }
+        // Lerp to the closest key in the target row
+        size_t current_row_min, current_row_max;
+        get_kb_min_max_index_for_row(current_row, current_row_min, current_row_max);
+        size_t target_row_min, target_row_max;
+        get_kb_min_max_index_for_row(target_row, target_row_min, target_row_max);
+        size_t current_row_cols = current_row_max - current_row_min + 1;
+        size_t target_row_cols = target_row_max - target_row_min + 1;
+        size_t position_in_row = kb_status.selected_key - current_row_min;
+        size_t target_position = position_in_row * target_row_cols / current_row_cols;
+        kb_status.selected_key = target_row_min + target_position;
+    }
+
+    KBEvent kb_handle_character_selection(
+        KBStatus & kb_status, 
+        String & input_buffer
+    ) {
+        KBEvent event = KBEvent::NONE;
+        KBKey selected_key = kb_status.caps_active || kb_status.shift_active ? keyboard_layout.shifted[kb_status.selected_key] : keyboard_layout.normal[kb_status.selected_key];
+        switch (selected_key) {
+            case KBKey::SHIFT:
+                if (kb_status.caps_active) {
+                    kb_status.caps_active = false;
+                    kb_status.shift_active = false;
+                } else {
+                    kb_status.shift_active = !kb_status.shift_active;
+                }
+                break;
+            case KBKey::CAPS:
+                if (kb_status.shift_active) {
+                    kb_status.shift_active = false;
+                }
+                kb_status.caps_active = !kb_status.caps_active;
+                break;
+            case KBKey::BACKSPACE:
+                if (input_buffer.length() > 0) {
+                    input_buffer.remove(input_buffer.length() - 1);
+                    event = KBEvent::DELETED_CHARACTER;
+                }
+                break;
+            case KBKey::TAB:
+                event = KBEvent::TAB_PRESSED;
+                break;
+            case KBKey::SPACE:
+                input_buffer += ' ';
+                event = KBEvent::ENTERED_CHARACTER;
+                break;
+            case KBKey::ENTER:
+                event = KBEvent::ENTER_PRESSED;
+                break;
+            default:
+                input_buffer += kbkey_to_string(selected_key);
+                event = KBEvent::ENTERED_CHARACTER;
+                if (kb_status.shift_active) {
+                    kb_status.shift_active = false;
+                }
+                break;
+        }
+        return event;
+    }
+
+    KBEvent handle_keyboard_input(
+        events::Event ev, 
+        KBStatus & kb_status, 
+        String & input_buffer
+    ) {
+        KBEvent event = KBEvent::NONE;
+        switch (ev.type) {
+            case events::EventType::BUTTON_PRESS:
+                switch (ev.buttonEvent.button) {
+                    case events::Button::LEFT:
+                        sound::play_navigation_tone();
+                        kb_move_left(kb_status);
+                        set_dirty();
+                        break;
+                    case events::Button::RIGHT:
+                        sound::play_navigation_tone();
+                        kb_move_right(kb_status);
+                        set_dirty();
+                        break;
+                    case events::Button::UP:
+                        sound::play_navigation_tone();
+                        kb_move_up(kb_status);
+                        set_dirty();
+                        break;
+                    case events::Button::DOWN:
+                        sound::play_navigation_tone();
+                        kb_move_down(kb_status);
+                        set_dirty();
+                        break;
+                    case events::Button::A:
+                        sound::play_confirm_tone();
+                        event = kb_handle_character_selection(kb_status, input_buffer);
+                        set_dirty();
+                        break;
+                    case events::Button::B:
+                        sound::play_cancel_tone();
+                        event = KBEvent::KEYBOARD_CLOSED;
+                        set_dirty();
+                        break;
+                    default:
+                        break;
+                }
+        }
+        return event;
+    }
+
+    void draw_keyboard(
+        Adafruit_SSD1306& display, 
+        const KBStatus& kb_status, 
+        const String& input_buffer
+    ) {
+        auto shift_active = kb_status.caps_active || kb_status.shift_active;
+        auto selected_key = kb_status.selected_key;
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(SSD1306_INVERSE);
+        display.setCursor(0, 0);
+        auto max_shown_chars = SCREEN_WIDTH / 6 - 1;
+        auto padding = (SCREEN_WIDTH - (max_shown_chars + 1) * 6) / 2; // Center the text
+        size_t start_pos = 0;
+        if (input_buffer.length() > max_shown_chars) {
+            start_pos = input_buffer.length() - max_shown_chars;
+        }
+        auto shown_chars = MIN(input_buffer.length(), max_shown_chars);
+        display.setCursor(padding, 0);
+        display.print(input_buffer.substring(start_pos, start_pos + max_shown_chars));
+        display.drawFastHLine(padding + shown_chars * 6, 9, 6, SSD1306_WHITE);
+        display.setTextColor(SSD1306_WHITE);
+        display.drawFastHLine(0, 11, SCREEN_WIDTH, SSD1306_WHITE);
+        size_t key_index = 0;
+        size_t y_offset = 13;
+        const size_t char_height = 8;
+        for (size_t row = 0; row < sizeof(keyboard_layout.cols_per_row)/sizeof(keyboard_layout.cols_per_row[0]); ++row) {
+            size_t cols = keyboard_layout.cols_per_row[row];
+            size_t x_offset = 0;
+            size_t special_keys = 0;
+            size_t special_keys_width = 0;
+            size_t key_index_backup = key_index;
+            for (size_t col = 0; col < cols; ++col) {
+                KBKey key = shift_active ? keyboard_layout.shifted[key_index] : keyboard_layout.normal[key_index];
+                auto str = kbkey_to_string(key);
+                auto len = strlen(str);
+                if (len > 1) {
+                    special_keys++;
+                    special_keys_width += 6 * len;
+                }
+                key_index++;
+            }
+            key_index = key_index_backup;
+            auto size_per_key = (SCREEN_WIDTH - special_keys_width) / (cols - special_keys);
+            auto extra_space = (SCREEN_WIDTH - special_keys_width) % (cols - special_keys);
+            uint8_t extra_space_used = 0;
+            for (size_t col = 0; col < cols; ++col) {
+                KBKey key = shift_active ? keyboard_layout.shifted[key_index] : keyboard_layout.normal[key_index];
+                auto str = kbkey_to_string(key);
+                auto chars = strlen(str);
+                size_t width = (chars > 1) ? (6 * chars) : size_per_key;
+                if (chars == 1 && extra_space_used < extra_space) {
+                    width += 1;
+                    extra_space_used++;
+                }
+                display.setTextColor(SSD1306_INVERSE);
+                if (key_index == selected_key) {
+                    display.fillRect(x_offset, y_offset, width, char_height, SSD1306_WHITE);
+                }
+                auto char_start_x = x_offset + (width - (6 * chars)) / 2;
+                display.setCursor(char_start_x, y_offset);
+                display.print(str);
+                x_offset += width;
+                key_index++;
+            }
+            y_offset += char_height;
+        }
+        display.display();
     }
 }
