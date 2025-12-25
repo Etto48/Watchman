@@ -11,4 +11,7 @@ namespace timekeeper {
 
     // To be called on wakeup from deep sleep (not on first boot)
     void wakeup();
+
+    // To be called just before entering deep sleep
+    void deepsleep();
 }

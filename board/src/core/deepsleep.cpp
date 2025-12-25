@@ -9,6 +9,7 @@
 #include "core/jingle.hpp"
 #include "core/logger.hpp"
 #include "core/menu.hpp"
+#include "core/timekeeper.hpp"
 #include "deepsleep.hpp"
 
 namespace deepsleep {
@@ -27,6 +28,7 @@ namespace deepsleep {
             logger::info("Grace period expired.");
             esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
             esp_deep_sleep_enable_gpio_wakeup(1 << A_PIN, ESP_GPIO_WAKEUP_GPIO_LOW);
+            timekeeper::deepsleep();
             logger::info("Entering deep-sleep.");
             esp_deep_sleep_start();
         } else if (wakeup_cause == ESP_SLEEP_WAKEUP_GPIO) {
