@@ -6,6 +6,7 @@ namespace wifi {
         CONNECTED_WEAK = 1,
         CONNECTED_AVERAGE = 2,
         CONNECTED_STRONG = 3,
+        DISABLED_BY_USER = 4
     };
 
     // Get the current WiFi status and approximate signal strength

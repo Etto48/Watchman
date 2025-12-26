@@ -74,6 +74,7 @@ void setup() {
   sound::play_melody(boot_jingle_melody, sizeof(boot_jingle_melody)/sizeof(boot_jingle_melody[0]));
   display.clearDisplay();
   display.display();
+  events::clear_event_queue();
   logger::info("Setup Complete.");
 }
 

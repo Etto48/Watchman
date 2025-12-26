@@ -7,9 +7,9 @@
 #include "core/menu.hpp"
 #include "core/sound.hpp"
 #include "core/logger.hpp"
+#include "apps/settings.hpp"
 #include "certs/isrg_root_x1.hpp"
 #include "constants.hpp"
-#include "private.hpp"
 #include "images/weather_broken_clouds.hpp"
 #include "images/weather_clear.hpp"
 #include "images/weather_few_clouds.hpp"
@@ -26,9 +26,11 @@ namespace apps::weather {
     SemaphoreHandle_t weather_data_mutex = nullptr;
     float latest_temperature = NAN;
     WeatherCode latest_weather_code = WeatherCode::UNKNOWN;
+    String latest_location = "Unknown";
     
     float latest_temperature_local = NAN;
     WeatherCode latest_weather_code_local = WeatherCode::UNKNOWN;
+    String latest_location_local = "Unknown";
 
     enum class WeatherTaskCommand {
         PAUSE = 1 << 0,
@@ -40,9 +42,10 @@ namespace apps::weather {
 
     void update_weather_task(void* param) {
         constexpr const char* weather_api_url = "https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current_weather=true";
+        constexpr const char* geo_api_url = "https://nominatim.openstreetmap.org/search?q=%s&format=json&limit=1";
         char url_buffer[256];
-        snprintf(url_buffer, sizeof(url_buffer), weather_api_url, LATITUDE, LONGITUDE);
-        url_buffer[sizeof(url_buffer) - 1] = '\0';
+        float latitude = 0.0f;
+        float longitude = 0.0f;
         WiFiClientSecure client;
         client.setCACert(certs::ISRG_ROOT_X1_CA);
         HTTPClient https;
@@ -59,7 +62,52 @@ namespace apps::weather {
                     }
                 }
             }
+            if (!WiFi.isConnected()) {
+                vTaskDelay(pdMS_TO_TICKS(weather_update_interval_on_failure_ms));
+                continue;
+            }
 
+            bool location_success = false;
+            auto settings = apps::settings::get_settings();
+            snprintf(url_buffer, sizeof(url_buffer) - 1, geo_api_url, settings.location.c_str());
+            url_buffer[sizeof(url_buffer) - 1] = '\0';
+            https.begin(client, url_buffer);
+            int geo_http_code = https.GET();
+            if (geo_http_code > 0) {
+                if (geo_http_code == HTTP_CODE_OK) {
+                    String geo_payload = https.getString();
+                    JsonDocument geo_doc;
+                    DeserializationError geo_error = deserializeJson(geo_doc, geo_payload);
+                    if (!geo_error) {
+                        if (geo_doc.is<JsonArray>() && geo_doc.size() > 0) {
+                            latitude = geo_doc[0]["lat"];
+                            longitude = geo_doc[0]["lon"];
+                            String location_name = geo_doc[0]["display_name"].as<String>();
+                            if (xSemaphoreTake(weather_data_mutex, pdMS_TO_TICKS(portMAX_DELAY))) {
+                                latest_location = location_name;
+                                xSemaphoreGive(weather_data_mutex);
+                            }
+                            location_success = true;
+                        } else {
+                            logger::error("Failed to get geocoding data: unexpected JSON structure");
+                        }
+                    } else {
+                        logger::error("Failed to parse geocoding JSON: %s", geo_error.c_str());
+                    }
+                } else {
+                    logger::error("Unexpected HTTP code from geocoding API: %d", geo_http_code);
+                }
+            } else {
+                logger::error("Failed to connect to geocoding API: %s", https.errorToString(geo_http_code).c_str());
+            }
+            https.end();
+            if (!location_success) {
+                vTaskDelay(pdMS_TO_TICKS(weather_update_interval_on_failure_ms));
+                continue;
+            }
+
+            snprintf(url_buffer, sizeof(url_buffer) - 1, weather_api_url, latitude, longitude);
+            url_buffer[sizeof(url_buffer) - 1] = '\0';
 
             https.begin(client, url_buffer);
             int httpCode = https.GET();
@@ -143,6 +191,7 @@ namespace apps::weather {
                     if ((!isnan(latest_temperature) && latest_temperature != latest_temperature_local) || (latest_weather_code != latest_weather_code_local)) {
                         latest_temperature_local = latest_temperature;
                         latest_weather_code_local = latest_weather_code;
+                        latest_location_local = latest_location;
                         menu::set_dirty();
                     }
                     xSemaphoreGive(weather_data_mutex);
@@ -227,16 +276,21 @@ namespace apps::weather {
                 weather_icon = images::weather_unknown;
                 break;
         }
-        display.drawBitmap(16, 20, weather_icon, images::weather_clear_width, images::weather_clear_height, SSD1306_WHITE);
+        display.drawBitmap(16, 8, weather_icon, images::weather_clear_width, images::weather_clear_height, SSD1306_WHITE);
         display.setTextSize(2);
         display.setTextColor(SSD1306_WHITE);
         if (!isnan(latest_temperature_local)) {    
-            display.setCursor(48, 32);
+            display.setCursor(48, 20);
             display.printf("%.1fC", latest_temperature_local);
         } else {
-            display.setCursor(48, 32);
+            display.setCursor(48, 20);
             display.print("N/A");
         }
+        display.setTextSize(1);
+        display.setCursor(0, 40);
+        auto lines = latest_location_local;
+        lines.replace(", ", "\n");
+        display.print(lines);
         display.display();
     }
 }

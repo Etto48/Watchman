@@ -5,16 +5,16 @@
 #include <cstddef>
 
 namespace images {
-    constexpr uint8_t wifi_0[] PROGMEM = {
+    constexpr uint8_t wifi_off[] PROGMEM = {
         0b00000000,
+        0b01000010,
+        0b00100100,
+        0b00011000,
         0b00011000,
         0b00100100,
-        0b00000100,
-        0b00001000,
-        0b00000000,
-        0b00001000,
+        0b01000010,
         0b00000000,
     };
-    constexpr size_t wifi_0_width = 8;
-    constexpr size_t wifi_0_height = 8;
+    constexpr size_t wifi_off_width = 8;
+    constexpr size_t wifi_off_height = 8;
 }

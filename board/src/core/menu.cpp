@@ -17,6 +17,7 @@
 #include "images/wifi_1.hpp"
 #include "images/wifi_2.hpp"
 #include "images/wifi_3.hpp"
+#include "images/wifi_off.hpp"
 #include "images/battery_0.hpp"
 #include "images/battery_1.hpp"
 #include "images/battery_2.hpp"
@@ -82,6 +83,9 @@ namespace menu {
                 break;
             case wifi::WiFiStatus::CONNECTED_STRONG:
                 wifi_icon = images::wifi_3;
+                break;
+            case wifi::WiFiStatus::DISABLED_BY_USER:
+                wifi_icon = images::wifi_off;
                 break;
             default:
                 wifi_icon = images::wifi_0;
@@ -731,6 +735,113 @@ namespace menu {
             }
             y_offset += char_height;
         }
+        display.display();
+    }
+
+    BooleanSwitchEvent handle_boolean_switch_input(
+        events::Event ev, 
+        bool & value, 
+        Adafruit_SSD1306& display
+    ) {
+        BooleanSwitchEvent event = BooleanSwitchEvent::NONE;
+        switch (ev.type) {
+            case events::EventType::BUTTON_PRESS:
+                switch (ev.buttonEvent.button) {
+                    case events::Button::LEFT:
+                        if (!value) {
+                            sound::play_navigation_tone();
+                            value = true;
+                            event = BooleanSwitchEvent::TOGGLED;
+                            set_dirty();
+                        }
+                        break;
+                    case events::Button::RIGHT:
+                        if (value) {
+                            sound::play_navigation_tone();
+                            value = false;
+                            event = BooleanSwitchEvent::TOGGLED;
+                            set_dirty();
+                        }
+                        break;
+                    case events::Button::A:
+                        sound::play_confirm_tone();
+                        value = !value;
+                        event = BooleanSwitchEvent::TOGGLED;
+                        set_dirty();
+                        break;
+                    case events::Button::B:
+                        sound::play_cancel_tone();
+                        event = BooleanSwitchEvent::CLOSED;
+                        set_dirty();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return event;
+    }
+
+    void draw_boolean_switch(Adafruit_SSD1306& display, const char* title, bool value) {
+        display.clearDisplay();
+        draw_generic_titlebar(display, title);
+        display.setTextColor(SSD1306_INVERSE);
+        display.drawRoundRect(30, 25, 60, 30, 16, SSD1306_WHITE);
+        if (value) {
+            display.fillRoundRect(32, 27, 56, 26, 14, SSD1306_WHITE);
+            display.drawRoundRect(31, 26, 28, 28, 14, SSD1306_BLACK);
+            display.setCursor(39, 37);
+            display.print("ON");
+        } else {
+            display.fillRoundRect(62, 27, 26, 26, 14, SSD1306_WHITE);
+            display.setCursor(68, 37);
+            display.print("OFF");
+        }
+        display.display();
+    }
+
+    ConfirmationDialogResult handle_confirmation_dialog_input(
+        events::Event ev, 
+        Adafruit_SSD1306& display
+    ) {
+        ConfirmationDialogResult result = ConfirmationDialogResult::NONE;
+        switch (ev.type) {
+            case events::EventType::BUTTON_PRESS:
+                switch (ev.buttonEvent.button) {
+                    case events::Button::A:
+                        sound::play_confirm_tone();
+                        result = ConfirmationDialogResult::CONFIRMED;
+                        set_dirty();
+                        break;
+                    case events::Button::B:
+                        sound::play_cancel_tone();
+                        result = ConfirmationDialogResult::CANCELED;
+                        set_dirty();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+    void draw_confirmation_dialog(
+        Adafruit_SSD1306& display, 
+        const char* message
+    ) {
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0, 0);
+        display.println(message);
+        display.drawFastHLine(0, 53, SCREEN_WIDTH, SSD1306_WHITE);
+        display.setCursor(16, 55);
+        display.print("A: Yes   B: No");
         display.display();
     }
 }

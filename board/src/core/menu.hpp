@@ -13,8 +13,10 @@ namespace menu {
         TIMER = 4,
         MUSIC = 5,
         WEATHER = 6,
-        DEEPSLEEP = 7,
-        SETTINGS = 8
+        DEMO = 7,
+        KEYBOARD = 8,
+        DEEPSLEEP = 9,
+        SETTINGS = 10
     };
     
     // Request to redraw the display
@@ -90,4 +92,43 @@ namespace menu {
         Adafruit_SSD1306& display, 
         const KBStatus& kb_status,
         const String& input_buffer);
+
+    enum class BooleanSwitchEvent {
+        NONE = 0,
+        TOGGLED, // Value was toggled
+        CLOSED, // User exited the boolean switch menu
+    };
+
+    // Handle boolean switch input events, to be used along with menu::draw_boolean_switch
+    // Returns the BooleanSwitchEvent that occurred if any
+    BooleanSwitchEvent handle_boolean_switch_input(
+        events::Event ev, 
+        bool & value, 
+        Adafruit_SSD1306& display
+    );
+
+    // Draw a boolean switch interface, to be used along with menu::handle_boolean_switch_input
+    void draw_boolean_switch(
+        Adafruit_SSD1306& display, 
+        const char* title, 
+        bool value);
+
+    enum class ConfirmationDialogResult {
+        NONE = 0,
+        CONFIRMED,
+        CANCELED
+    };
+
+    // Handle confirmation dialog input events, to be used along with menu::draw_confirmation_dialog
+    // Returns the ConfirmationDialogResult that occurred if any
+    ConfirmationDialogResult handle_confirmation_dialog_input(
+        events::Event ev, 
+        Adafruit_SSD1306& display
+    );
+
+    // Draw a confirmation dialog interface, to be used along with menu::handle_confirmation_dialog_input
+    void draw_confirmation_dialog(
+        Adafruit_SSD1306& display, 
+        const char* message
+    );
 }

@@ -1,10 +1,14 @@
 #include <WiFi.h>
 
 #include "core/wifi.hpp"
-#include "private.hpp"
+#include "apps/settings.hpp"
 
 namespace wifi {
     WiFiStatus get_status() {
+        apps::settings::Settings settings = apps::settings::get_settings();
+        if (!settings.wifi_enabled) {
+            return WiFiStatus::DISABLED_BY_USER;
+        }
         wl_status_t status = WiFi.status();
         if (status != WL_CONNECTED) {
             return WiFiStatus::DISCONNECTED;
@@ -28,25 +32,32 @@ namespace wifi {
         // If no SSID found, shut down WiFi to save power, retry in a while
         // If connected, do nothing and wait
         while (true) {
+            apps::settings::Settings settings = apps::settings::get_settings();
+            if (!settings.wifi_enabled) {
+                WiFi.disconnect(true, true); // Disconnect and erase AP
+                WiFi.mode(WIFI_OFF); // Turn off WiFi to save power
+                vTaskDelay(pdMS_TO_TICKS(CHECK_INTERVAL_MS));
+                continue;
+            }
+            WiFi.mode(WIFI_STA);
             wl_status_t status = WiFi.status();
             if (status != WL_CONNECTED && status != WL_IDLE_STATUS) {
                 int16_t n = WiFi.scanNetworks();
                 bool ssid_found = false;
                 for (int16_t i = 0; i < n; ++i) {
                     String found_ssid = WiFi.SSID(i);
-                    if (found_ssid == WIFI_SSID) {
+                    if (found_ssid == settings.wifi_ssid) {
                         ssid_found = true;
                         break;
                     }
                 }
                 if (ssid_found) {
-                    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+                    WiFi.begin(settings.wifi_ssid, settings.wifi_password);
                     vTaskDelay(pdMS_TO_TICKS(CHECK_INTERVAL_MS));
                 } else {
                     WiFi.disconnect(true, true); // Disconnect and erase AP
                     WiFi.mode(WIFI_OFF); // Turn off WiFi to save power
                     vTaskDelay(pdMS_TO_TICKS(NO_SSID_FOUND_DELAY_MS));
-                    WiFi.mode(WIFI_STA); // Re-enable WiFi for next scan
                     continue;
                 }
             } else {
