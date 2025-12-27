@@ -49,8 +49,8 @@ namespace events {
         }
         last_button_event_time[button_index] = timestamp;
 
-        ev.buttonEvent.button = button;
-        ev.buttonEvent.timestamp = timestamp;
+        ev.button_event.button = button;
+        ev.button_event.timestamp = timestamp;
 
         add_event(ev);
     }
@@ -105,7 +105,7 @@ namespace events {
         switch (ret.type) {
             case EventType::BUTTON_PRESS:
             case EventType::BUTTON_RELEASE:
-                last_event_timestamp = ret.buttonEvent.timestamp;
+                last_event_timestamp = ret.button_event.timestamp;
                 break;
             default:
                 break;

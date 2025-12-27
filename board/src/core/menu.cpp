@@ -7,9 +7,12 @@
 #include "apps/temperature.hpp"
 #include "apps/music.hpp"
 #include "apps/weather.hpp"
-#include "apps/deepsleep.hpp"
 #include "apps/stopwatch.hpp"
 #include "apps/timer.hpp"
+#include "apps/pet.hpp"
+#include "apps/map.hpp"
+#include "apps/metronome.hpp"
+#include "apps/deepsleep.hpp"
 #include "apps/settings.hpp"
 #include "core/deepsleep.hpp"
 #include "constants.hpp"
@@ -45,6 +48,9 @@ namespace menu {
         "Timer",
         "Music",
         "Weather",
+        "Pet",
+        "Map",
+        "Metronome",
         "Deepsleep",
         "Settings"
     };
@@ -55,6 +61,9 @@ namespace menu {
         apps::timer::app,
         apps::music::app,
         apps::weather::app,
+        apps::pet::app,
+        apps::map::app,
+        apps::metronome::app,
         apps::deepsleep::app,
         apps::settings::app
     };
@@ -65,6 +74,9 @@ namespace menu {
         apps::timer::draw,
         apps::music::draw,
         apps::weather::draw,
+        apps::pet::draw,
+        apps::map::draw,
+        apps::metronome::draw,
         apps::deepsleep::draw,
         apps::settings::draw
     };
@@ -198,7 +210,7 @@ namespace menu {
     ) {
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
-                switch (ev.buttonEvent.button) {
+                switch (ev.button_event.button) {
                     case events::Button::UP:
                         if (play_navigation_tone) {
                             sound::play_navigation_tone();
@@ -630,7 +642,7 @@ namespace menu {
         KBEvent event = KBEvent::NONE;
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
-                switch (ev.buttonEvent.button) {
+                switch (ev.button_event.button) {
                     case events::Button::LEFT:
                         sound::play_navigation_tone();
                         kb_move_left(kb_status);
@@ -746,7 +758,7 @@ namespace menu {
         BooleanSwitchEvent event = BooleanSwitchEvent::NONE;
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
-                switch (ev.buttonEvent.button) {
+                switch (ev.button_event.button) {
                     case events::Button::LEFT:
                         if (!value) {
                             sound::play_navigation_tone();
@@ -809,7 +821,7 @@ namespace menu {
         ConfirmationDialogResult result = ConfirmationDialogResult::NONE;
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
-                switch (ev.buttonEvent.button) {
+                switch (ev.button_event.button) {
                     case events::Button::A:
                         sound::play_confirm_tone();
                         result = ConfirmationDialogResult::CONFIRMED;

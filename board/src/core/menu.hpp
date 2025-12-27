@@ -13,10 +13,11 @@ namespace menu {
         TIMER = 4,
         MUSIC = 5,
         WEATHER = 6,
-        DEMO = 7,
-        KEYBOARD = 8,
-        DEEPSLEEP = 9,
-        SETTINGS = 10
+        PET = 7,
+        MAP = 8,
+        METRONOME = 9,
+        DEEPSLEEP = 10,
+        SETTINGS = 11
     };
     
     // Request to redraw the display

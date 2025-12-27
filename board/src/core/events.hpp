@@ -24,7 +24,7 @@ namespace events {
     struct Event {
         EventType type;
         union {
-            ButtonEvent buttonEvent; // valid if type is BUTTON_PRESS or BUTTON_RELEASE
+            ButtonEvent button_event; // valid if type is BUTTON_PRESS or BUTTON_RELEASE
         };
     };
 

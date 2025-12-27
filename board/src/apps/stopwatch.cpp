@@ -44,7 +44,7 @@ namespace apps::stopwatch {
         events::Event ev = events::get_next_event();
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
-                switch (ev.buttonEvent.button) {
+                switch (ev.button_event.button) {
                     case events::Button::A:
                         sound::play_confirm_tone();
                         if (start_time_us == 0) {

@@ -51,7 +51,7 @@ namespace sound {
 
         for (size_t i = 0; i < length; ++i) {
             events::Event ev = events::get_next_event();
-            if (ev.type == events::EventType::BUTTON_PRESS && ev.buttonEvent.button == events::Button::A) {
+            if (ev.type == events::EventType::BUTTON_PRESS && ev.button_event.button == events::Button::A) {
                 was_interrupted = true;
                 break; // Interrupt melody on A button press
             }
