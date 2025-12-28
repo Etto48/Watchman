@@ -61,7 +61,7 @@ namespace apps::map {
         auto step_size = step_sizes[static_cast<size_t>(state.zoom_level)];
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
-                switch (ev.button_event.button) {
+                switch (ev.button_press_event.button) {
                     case events::Button::UP:
                         if (state.zoom_level == ZoomLevel::INFO) break;
                         sound::play_navigation_tone();

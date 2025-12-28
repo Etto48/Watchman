@@ -45,7 +45,7 @@ namespace apps::timer {
             case events::EventType::BUTTON_PRESS:
                 switch (timer_state) {
                     case TimerState::IDLE:
-                        switch (ev.button_event.button) {
+                        switch (ev.button_press_event.button) {
                             case events::Button::A:
                                 sound::play_confirm_tone();
                                 timer_state = TimerState::RUNNING;
@@ -70,7 +70,7 @@ namespace apps::timer {
                         }
                         break;
                     case TimerState::EDITING:
-                        switch (ev.button_event.button) {
+                        switch (ev.button_press_event.button) {
                             case events::Button::A:
                                 sound::play_confirm_tone();
                                 timer_state = TimerState::IDLE;
@@ -135,7 +135,7 @@ namespace apps::timer {
                         }
                         break;
                     case TimerState::RUNNING:
-                        switch (ev.button_event.button) {
+                        switch (ev.button_press_event.button) {
                             case events::Button::A:
                             case events::Button::B:
                                 sound::play_confirm_tone();
@@ -156,7 +156,7 @@ namespace apps::timer {
                         }
                         break;
                     case TimerState::PAUSED:
-                        switch (ev.button_event.button) {
+                        switch (ev.button_press_event.button) {
                             case events::Button::A:
                                 sound::play_confirm_tone();
                                 timer_state = TimerState::RUNNING;
@@ -174,7 +174,7 @@ namespace apps::timer {
                         }
                         break;
                     case TimerState::FINISHED:
-                        switch (ev.button_event.button) {
+                        switch (ev.button_press_event.button) {
                             case events::Button::A:
                             case events::Button::B:
                                 sound::stop_async_interruptible_melody();

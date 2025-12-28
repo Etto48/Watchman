@@ -44,7 +44,7 @@ namespace apps::music {
         switch (ev.type) {
             case events::EventType::BUTTON_PRESS:
                 if (currently_playing) {
-                    switch (ev.button_event.button) {
+                    switch (ev.button_press_event.button) {
                         case events::Button::A:
                             sound::stop_async_interruptible_melody();
                             break;

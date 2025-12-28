@@ -8,23 +8,39 @@ namespace events {
     };
 
     enum class Button : uint8_t {
-        A = 0,
-        B = 1,
-        UP = 2,
-        DOWN = 3,
-        LEFT = 4,
-        RIGHT = 5
+        NONE = 0,
+        A = 1<<0,
+        B = 1<<1,
+        UP = 1<<2,
+        DOWN = 1<<3,
+        LEFT = 1<<4,
+        RIGHT = 1<<5
     };
 
-    struct ButtonEvent {
-        Button button;
+    Button operator|(Button a, Button b);
+    Button operator|=(Button& a, Button b);
+    Button operator&(Button a, Button b);
+    Button operator&=(Button& a, Button b);
+    Button operator~(Button a);
+
+    struct ButtonPressEvent {
+        Button button; // Only one button will be set
+        Button hold; // All buttons being held down at the time of press
         uint64_t timestamp;
+    };
+
+    struct ButtonReleaseEvent {
+        Button button; // Only one button will be set
+        Button hold; // All buttons being held down at the time of release
+        uint64_t timestamp;
+        uint64_t duration; // How many microseconds (us) the button was held down
     };
 
     struct Event {
         EventType type;
         union {
-            ButtonEvent button_event; // valid if type is BUTTON_PRESS or BUTTON_RELEASE
+            ButtonPressEvent button_press_event; // valid if type is BUTTON_PRESS
+            ButtonReleaseEvent button_release_event; // valid if type is BUTTON_RELEASE
         };
     };
 
@@ -46,7 +62,9 @@ namespace events {
     };
 
     EventMask operator|(EventMask a, EventMask b);
+    EventMask operator|=(EventMask& a, EventMask b);
     EventMask operator&(EventMask a, EventMask b);
+    EventMask operator&=(EventMask& a, EventMask b);
     EventMask operator~(EventMask a);
 
     // Retrieves the next event from the queue blocking up to timeout_ms milliseconds (0 = non blocking).

@@ -96,7 +96,7 @@ namespace apps::settings {
                     action
                 );
                 if (ev.type == events::EventType::BUTTON_PRESS &&
-                    ev.button_event.button == events::Button::B) {
+                    ev.button_press_event.button == events::Button::B) {
                     // Exiting settings, reset new settings state
                     new_settings_loaded = false;
                     new_settings_dirty = false;

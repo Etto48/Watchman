@@ -16,8 +16,9 @@ namespace menu {
         PET = 7,
         MAP = 8,
         METRONOME = 9,
-        DEEPSLEEP = 10,
-        SETTINGS = 11
+        EVENT_DEBUGGER = 10,
+        DEEPSLEEP = 11,
+        SETTINGS = 12
     };
     
     // Request to redraw the display
