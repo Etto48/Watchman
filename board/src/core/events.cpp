@@ -10,6 +10,7 @@
 namespace events {
     QueueHandle_t event_queue = nullptr;
     uint64_t last_button_event_time[6*2] = {0};
+    uint64_t button_press_start_time[6] = {0};
     hw_timer_t* timer_ptr = nullptr;
     uint64_t last_event_timestamp = 0;
     EventMask current_mask = EventMask::NONE;
@@ -60,6 +61,58 @@ namespace events {
         return mask;
     }
 
+    void IRAM_ATTR handle_button_repeats() {
+        uint64_t timestamp = timekeeper::now_us();
+        auto gpio_state = GPIO.in.val;
+        Event dummy;
+        auto highPriorityTaskWoken = pdFALSE;
+
+        for (int i = 0; i < 6; ++i) {
+            Button button = static_cast<Button>(1 << i);
+            bool pressed = (gpio_state & button_to_pin_mask(button)) == 0; // Active low
+            if (pressed) {
+                auto button_index = get_button_index(button, true);
+                if (
+                    last_button_event_time[button_index] + DEBOUNCE_DELAY_US <= timestamp 
+                    && button_press_start_time[i] + REPEAT_DELAY_US <= timestamp
+                ) {
+                    // Generate repeat event
+                    Event ev;
+                    ev.type = EventType::BUTTON_PRESS;
+                    ev.button_press_event.button = button;
+                    // Determine hold state
+                    Button hold = Button::NONE;
+                    bool button_a = (gpio_state & (1 << A_PIN)) == 0;
+                    bool button_b = (gpio_state & (1 << B_PIN)) == 0;
+                    bool button_up = (gpio_state & (1 << UP_PIN)) == 0;
+                    bool button_down = (gpio_state & (1 << DOWN_PIN)) == 0;
+                    bool button_left = (gpio_state & (1 << LEFT_PIN)) == 0;
+                    bool button_right = (gpio_state & (1 << RIGHT_PIN)) == 0;
+                    hold |= button_a ? Button::A : Button::NONE;
+                    hold |= button_b ? Button::B : Button::NONE;
+                    hold |= button_up ? Button::UP : Button::NONE;
+                    hold |= button_down ? Button::DOWN : Button::NONE;
+                    hold |= button_left ? Button::LEFT : Button::NONE;
+                    hold |= button_right ? Button::RIGHT : Button::NONE;
+                    ev.button_press_event.hold = hold;
+                    ev.button_press_event.timestamp = timestamp;
+                    ev.button_press_event.repeated = true;
+
+                    last_button_event_time[button_index] = timestamp;
+                    if (event_queue != nullptr) {
+                        if (xQueueIsQueueFullFromISR(event_queue)) {
+                            xQueueReceiveFromISR(event_queue, &dummy, &highPriorityTaskWoken);
+                        }
+                        xQueueSendFromISR(event_queue, &ev, &highPriorityTaskWoken);
+                    }
+                }
+            }
+        }
+        if (highPriorityTaskWoken) {
+            portYIELD_FROM_ISR();
+        }           
+    }
+
     void IRAM_ATTR handle_button_interrupt(Button button) {
         uint64_t timestamp = timekeeper::now_us();
         Event ev;
@@ -83,6 +136,9 @@ namespace events {
             return; // Debounce: ignore this event
         }
         last_button_event_time[button_index] = timestamp;
+        if (pressed) {
+            button_press_start_time[button_index / 2] = timestamp;
+        }
 
         Button hold = Button::NONE;
 
@@ -103,12 +159,13 @@ namespace events {
             ev.button_press_event.button = button;
             ev.button_press_event.hold = hold;
             ev.button_press_event.timestamp = timestamp;
+            ev.button_press_event.repeated = false; // Initial press, not a repeat
         } else {
             ev.button_release_event.button = button;
             ev.button_release_event.hold = hold;
             ev.button_release_event.timestamp = timestamp;
             // Calculate duration
-            auto press_time = last_button_event_time[get_button_index(button, true)];
+            auto press_time = button_press_start_time[button_index / 2];
             ev.button_release_event.duration = timestamp - press_time;
         }
 
@@ -136,7 +193,7 @@ namespace events {
         }
 
         void IRAM_ATTR timer() {
-            //log::info("Timer interrupt fired.");
+            handle_button_repeats();
         }
     }
 
@@ -223,7 +280,7 @@ namespace events {
             return;
         }
         timerAttachInterrupt(timer_ptr, ISRs::timer, true);
-        timerAlarmWrite(timer_ptr, 1000, true); // 1 second interval
+        timerAlarmWrite(timer_ptr, 100, true); // 100 ms
         timerAlarmEnable(timer_ptr);
         logger::info("Timer started correctly.");
     }

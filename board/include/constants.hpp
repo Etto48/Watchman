@@ -25,6 +25,7 @@ constexpr uint8_t SCL_PIN = 4;
 
 constexpr uint8_t EVENT_QUEUE_SIZE = 16;
 constexpr uint64_t DEBOUNCE_DELAY_US = 300000;
+constexpr uint64_t REPEAT_DELAY_US = 500000;
 
 constexpr uint64_t TIME_BEFORE_DEEPSLEEP_US = 60000000; // 1 minute of inactivity before going to deep sleep
 constexpr uint64_t DEEPSLEEP_GRACE_PERIOD_US = 5000000; // 5 seconds grace period in deep sleep before sleeping

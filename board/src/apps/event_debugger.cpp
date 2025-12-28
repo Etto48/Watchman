@@ -16,6 +16,25 @@ namespace apps::event_debugger {
         }
     }
 
+    const char* button_to_string(events::Button button) {
+        switch (button) {
+            case events::Button::A:
+                return "A";
+            case events::Button::B:
+                return "B";
+            case events::Button::UP:
+                return "UP";
+            case events::Button::DOWN:
+                return "DOWN";
+            case events::Button::LEFT:
+                return "LEFT";
+            case events::Button::RIGHT:
+                return "RIGHT";
+            default:
+                return "NONE";
+        }
+    }
+
     void draw(Adafruit_SSD1306& display) {
         display.clearDisplay();
         menu::draw_generic_titlebar(display, "Event Debugger");
@@ -25,14 +44,8 @@ namespace apps::event_debugger {
         switch (last_event.type) {
             case events::EventType::BUTTON_PRESS:
                 display.printf("Button Press:\n");
-                display.printf(" Button: 0b%d%d%d%d%d%d%d%d\n", 
-                    (static_cast<uint8_t>(last_event.button_press_event.button) & 0x20) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_press_event.button) & 0x10) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_press_event.button) & 0x08) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_press_event.button) & 0x04) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_press_event.button) & 0x02) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_press_event.button) & 0x01) ? 1 : 0,
-                    0, 0
+                display.printf(" Button: %s\n", 
+                    button_to_string(last_event.button_press_event.button)
                 );
                 display.printf(" Hold: 0b%d%d%d%d%d%d%d%d\n", 
                     (static_cast<uint8_t>(last_event.button_press_event.hold) & 0x20) ? 1 : 0,
@@ -44,17 +57,12 @@ namespace apps::event_debugger {
                     0, 0
                 );
                 display.printf(" Timestamp: %llu\n", last_event.button_press_event.timestamp);
+                display.printf(" Repeated: %s\n", last_event.button_press_event.repeated ? "Yes" : "No");
                 break;
             case events::EventType::BUTTON_RELEASE:
                 display.printf("Button Release:\n");
-                display.printf(" Button: 0b%d%d%d%d%d%d%d%d\n", 
-                    (static_cast<uint8_t>(last_event.button_release_event.button) & 0x20) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_release_event.button) & 0x10) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_release_event.button) & 0x08) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_release_event.button) & 0x04) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_release_event.button) & 0x02) ? 1 : 0,
-                    (static_cast<uint8_t>(last_event.button_release_event.button) & 0x01) ? 1 : 0,
-                    0, 0
+                display.printf(" Button: %s\n", 
+                    button_to_string(last_event.button_release_event.button)
                 );
                 display.printf(" Hold: 0b%d%d%d%d%d%d%d%d\n", 
                     (static_cast<uint8_t>(last_event.button_release_event.hold) & 0x20) ? 1 : 0,

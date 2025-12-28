@@ -27,6 +27,7 @@ namespace events {
         Button button; // Only one button will be set
         Button hold; // All buttons being held down at the time of press
         uint64_t timestamp;
+        bool repeated; // true if this event is a repeat due to button being held down
     };
 
     struct ButtonReleaseEvent {
