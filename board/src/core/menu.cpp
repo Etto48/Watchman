@@ -26,6 +26,7 @@
 #include "images/battery_1.hpp"
 #include "images/battery_2.hpp"
 #include "images/battery_3.hpp"
+#include "images/battery_disconnected.hpp"
 #include "apps/clock.hpp"
 #include "core/wifi.hpp"
 #include "core/battery.hpp"
@@ -124,6 +125,9 @@ namespace menu {
                 break;
             case battery::BatteryLevel::BATTERY_FULL:
                 battery_icon = images::battery_3;
+                break;
+            case battery::BatteryLevel::BATTERY_DISCONNECTED:
+                battery_icon = images::battery_disconnected;
                 break;
             default:
                 battery_icon = images::battery_0;
@@ -237,7 +241,13 @@ namespace menu {
                         set_dirty();
                         break;
                     case events::Button::B:
-                        sound::play_cancel_tone();
+                        if (menu::current_app == menu::App::NONE) {
+                            // In main menu, B does nothing
+                            break;
+                        }
+                        if (play_cancel_tone) {
+                            sound::play_cancel_tone();
+                        }
                         menu::current_app = menu::App::NONE;
                         set_dirty();
                         break;

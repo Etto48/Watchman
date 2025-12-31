@@ -4,6 +4,16 @@
 
 namespace battery {    
     BatteryLevel get_battery_level() {
+        pinMode(BAT_PIN, INPUT_PULLUP);
+        auto read_pullup = digitalRead(BAT_PIN);
+        pinMode(BAT_PIN, INPUT_PULLDOWN);
+        auto read_pulldown = digitalRead(BAT_PIN);
+        if (read_pullup == HIGH && read_pulldown == LOW) {
+            return BatteryLevel::BATTERY_DISCONNECTED;
+        } 
+
+        pinMode(BAT_PIN, INPUT);
+
         int analog_value = analogRead(BAT_PIN);
         float voltage_divider_ratio = (BATTERY_R1 + BATTERY_R2) / BATTERY_R2;
         float voltage = (analog_value / static_cast<float>(MAX_ANALOG_READ)) * voltage_divider_ratio * ANALOG_REF_VOLTAGE;

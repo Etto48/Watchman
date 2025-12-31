@@ -118,16 +118,15 @@ namespace sound {
         bool stop_requested = false;
         do {
             for (size_t i = 0; i < length; ++i) {
-                if (ulTaskNotifyTake(pdTRUE, 0) > 0) {
-                    stop_requested = true;
-                    break;
-                }
                 if (melody[i].frequency == sound::NoteFrequency::NOTE_REST) {
                     noTone(BUZZER_PIN);
                 } else {
                     tone(BUZZER_PIN, static_cast<unsigned int>(melody[i].frequency));
                 }
-                vTaskDelay(pdMS_TO_TICKS(melody[i].duration));
+                if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(melody[i].duration)) > 0) {
+                    stop_requested = true;
+                    break;
+                }
             }
         } while (loop && !stop_requested);
         noTone(BUZZER_PIN);
