@@ -14,70 +14,78 @@
 #include "core/wifi.hpp"
 #include "core/logger.hpp"
 #include "core/timekeeper.hpp"
-
+#include "apps/alarm.hpp"
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void hlt() {
-  vTaskDelete(NULL);
+    vTaskDelete(NULL);
 }
 
 void setup() {
-  logger::init();
-  auto wakeup_cause = esp_sleep_get_wakeup_cause();
-  if (wakeup_cause == ESP_SLEEP_WAKEUP_UNDEFINED) {
-    // Fresh boot
-    timekeeper::first_boot();
-    logger::info("WatchMan Starting...");
-  } else {
-    // Wake from sleep
-    timekeeper::wakeup();
-    logger::info("WatchMan Restarting from sleep...");
-  }
-  ledcSetup(0, 5000, 8); // initialize ledc state so it doesn't conflict with i2c
-  Wire.begin(SDA_PIN, SCL_PIN);
-  logger::info("I2C Initialized.");
+    logger::init();
+    auto wakeup_cause = esp_sleep_get_wakeup_cause();
+    if (wakeup_cause == ESP_SLEEP_WAKEUP_UNDEFINED) {
+        // Fresh boot
+        timekeeper::first_boot();
+        logger::info("WatchMan Starting...");
+    } else {
+        // Wake from sleep
+        timekeeper::wakeup();
+        logger::info("WatchMan Restarting from sleep...");
+    }
+    ledcSetup(0, 5000, 8); // initialize ledc state so it doesn't conflict with i2c
+    Wire.begin(SDA_PIN, SCL_PIN);
+    logger::info("I2C Initialized.");
 
-  pinMode(A_PIN, INPUT_PULLUP);
-  pinMode(B_PIN, INPUT_PULLUP);
-  pinMode(UP_PIN, INPUT_PULLUP);
-  pinMode(DOWN_PIN, INPUT_PULLUP);
-  pinMode(LEFT_PIN, INPUT_PULLUP);
-  pinMode(RIGHT_PIN, INPUT_PULLUP);
+    pinMode(A_PIN, INPUT_PULLUP);
+    pinMode(B_PIN, INPUT_PULLUP);
+    pinMode(UP_PIN, INPUT_PULLUP);
+    pinMode(DOWN_PIN, INPUT_PULLUP);
+    pinMode(LEFT_PIN, INPUT_PULLUP);
+    pinMode(RIGHT_PIN, INPUT_PULLUP);
 
-  pinMode(BAT_PIN, INPUT);
+    pinMode(BAT_PIN, INPUT);
 
-  pinMode(BUZZER_PIN, OUTPUT);
-  logger::info("Pins Configured.");
+    pinMode(BUZZER_PIN, OUTPUT);
+    logger::info("Pins Configured.");
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
-    logger::error("Monitor allocation failed");
-    hlt();
-  }
-  
-  display.ssd1306_command(SSD1306_DISPLAYON);
-  image::display_image(images::logo, display);
-  logger::info("Display Initialized.");
+    if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
+        logger::error("Monitor allocation failed");
+        hlt();
+    }
+    
+    display.ssd1306_command(SSD1306_DISPLAYON);
+    image::display_image(images::logo, display);
+    logger::info("Display Initialized.");
 
-  wifi::init();
-  logger::info("WiFi System Initialized.");
+    wifi::init();
+    logger::info("WiFi System Initialized.");
 
-  events::enable_events();
-  logger::info("Event System Initialized.");
+    events::enable_events();
+    logger::info("Event System Initialized.");
 
-  menu::init();
-  logger::info("Menu System Initialized.");
+    menu::init();
+    logger::info("Menu System Initialized.");
 
-  sound::init();
-  logger::info("Sound System Initialized.");
+    sound::init();
+    logger::info("Sound System Initialized.");
 
-  sound::play_melody(boot_jingle_melody, sizeof(boot_jingle_melody)/sizeof(boot_jingle_melody[0]));
-  display.clearDisplay();
-  display.display();
-  events::clear_event_queue();
-  logger::info("Setup Complete.");
+    apps::alarm::init();
+    logger::info("Alarm App Initialized.");
+
+    if (wakeup_cause == ESP_SLEEP_WAKEUP_TIMER) {
+        logger::info("Imminent alarm, skipping boot jingle.");
+        menu::current_app = menu::App::ALARM;
+    } else {
+        sound::play_melody(boot_jingle_melody, sizeof(boot_jingle_melody)/sizeof(boot_jingle_melody[0]));
+    }
+    display.clearDisplay();
+    display.display();
+    events::clear_event_queue();
+    logger::info("Setup Complete.");
 }
 
 void loop() {
-  menu::main_loop(display);
+    menu::main_loop(display);
 }

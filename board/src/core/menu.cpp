@@ -9,6 +9,8 @@
 #include "apps/weather.hpp"
 #include "apps/stopwatch.hpp"
 #include "apps/timer.hpp"
+#include "apps/alarm.hpp"
+#include "apps/calendar.hpp"
 #include "apps/pet.hpp"
 #include "apps/map.hpp"
 #include "apps/metronome.hpp"
@@ -26,6 +28,8 @@
 #include "images/battery_1.hpp"
 #include "images/battery_2.hpp"
 #include "images/battery_3.hpp"
+#include "images/alarm_0.hpp"
+#include "images/alarm_1.hpp"
 #include "images/battery_disconnected.hpp"
 #include "apps/clock.hpp"
 #include "core/wifi.hpp"
@@ -39,6 +43,7 @@ namespace menu {
     bool dirty = true;
     wifi::WiFiStatus last_wifi_status = wifi::WiFiStatus::DISCONNECTED;
     battery::BatteryLevel last_battery_level = battery::BatteryLevel::BATTERY_EMPTY;
+    bool last_alarm_set = false; // True if an alarm is set
     
     App current_app = App::NONE;
     size_t cursor = 0;
@@ -48,6 +53,8 @@ namespace menu {
         "Clock",
         "Stopwatch",
         "Timer",
+        "Alarm",
+        "Calendar",
         "Music",
         "Weather",
         "Pet",
@@ -62,6 +69,8 @@ namespace menu {
         apps::clock::app,
         apps::stopwatch::app,
         apps::timer::app,
+        apps::alarm::app,
+        apps::calendar::app,
         apps::music::app,
         apps::weather::app,
         apps::pet::app,
@@ -76,6 +85,8 @@ namespace menu {
         apps::clock::draw,
         apps::stopwatch::draw,
         apps::timer::draw,
+        apps::alarm::draw,
+        apps::calendar::draw,
         apps::music::draw,
         apps::weather::draw,
         apps::pet::draw,
@@ -136,6 +147,14 @@ namespace menu {
         display.drawBitmap(SCREEN_WIDTH - images::battery_0_width * 2, 0, battery_icon, images::battery_0_width, images::battery_0_height, SSD1306_BLACK);
     }
 
+    void draw_alarm_icon(Adafruit_SSD1306 &display) {
+        if (last_alarm_set) {
+            display.drawBitmap(SCREEN_WIDTH - images::battery_0_width * 3, 0, images::alarm_1, images::alarm_1_width, images::alarm_1_height, SSD1306_BLACK);
+        } else {
+            display.drawBitmap(SCREEN_WIDTH - images::battery_0_width * 3, 0, images::alarm_0, images::alarm_0_width, images::alarm_0_height, SSD1306_BLACK);
+        }
+    }
+
     void draw_generic_titlebar(Adafruit_SSD1306 &display, const char *title)
     {
         display.setTextSize(1);
@@ -144,6 +163,7 @@ namespace menu {
         display.setCursor(0, 0);
         display.print(" ");
         display.println(title);
+        draw_alarm_icon(display);
         draw_battery_icon(display);
         draw_wifi_icon(display);
         display.setTextColor(SSD1306_WHITE);
@@ -212,6 +232,7 @@ namespace menu {
         size_t &cursor, 
         Adafruit_SSD1306& display,
         void(*action)(size_t cursor, Adafruit_SSD1306& display),
+        void(*back_action)(Adafruit_SSD1306& display),
         bool play_confirm_tone, 
         bool play_cancel_tone, 
         bool play_navigation_tone
@@ -241,15 +262,13 @@ namespace menu {
                         set_dirty();
                         break;
                     case events::Button::B:
-                        if (menu::current_app == menu::App::NONE) {
-                            // In main menu, B does nothing
-                            break;
+                        if (back_action != nullptr) {
+                            if (play_cancel_tone) {
+                                sound::play_cancel_tone();
+                            }
+                            back_action(display);
+                            set_dirty();
                         }
-                        if (play_cancel_tone) {
-                            sound::play_cancel_tone();
-                        }
-                        menu::current_app = menu::App::NONE;
-                        set_dirty();
                         break;
                     default:
                         break;
@@ -268,6 +287,7 @@ namespace menu {
         while (true) {
             wifi::WiFiStatus current_wifi_status = wifi::get_status();
             battery::BatteryLevel current_battery_level = battery::get_battery_level();
+            bool alarm_is_set = apps::alarm::get_alarm_timestamp().timestamp != 0;
             if (xSemaphoreTake(status_mutex, portMAX_DELAY)) {
                 if (current_wifi_status != last_wifi_status) {
                     last_wifi_status = current_wifi_status;
@@ -277,6 +297,10 @@ namespace menu {
                     last_battery_level = current_battery_level;
                     dirty = true;
                 }
+                if (alarm_is_set != last_alarm_set) {
+                    last_alarm_set = alarm_is_set;
+                    dirty = true;
+                }
                 xSemaphoreGive(status_mutex);
             }
             vTaskDelay(pdMS_TO_TICKS(UPDATE_STATUS_INTERVAL_MS)); // Update every 1 seconds
@@ -284,7 +308,6 @@ namespace menu {
     }
 
     void init() {
-        configTime(GMT_OFFSET_S, DAYLIGHT_OFFSET_S, "pool.ntp.org", "time.nist.gov");
         status_mutex = xSemaphoreCreateMutex();
         xTaskCreate(status_update_task, "StatusUpdate", 2048, nullptr, 1, nullptr);
     }

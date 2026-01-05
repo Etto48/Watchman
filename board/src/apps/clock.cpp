@@ -19,6 +19,15 @@ namespace apps::clock {
         return (t.tm_year + 1900 >= 2025); // Consider time valid if year is 2025 or later
     }
 
+    const char* month_names[] = {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+
+    const char* day_names[] = {
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    };
+
     void draw(Adafruit_SSD1306& display) {
         display.clearDisplay();
         menu::draw_generic_titlebar(display, "Clock");
@@ -66,13 +75,22 @@ namespace apps::clock {
             display.setCursor(10, 48);
             display.println("for NTP sync");
         } else { // REAL_TIME and valid
-            char buffer[20];
-            strftime(buffer, sizeof(buffer), "%H:%M:%S", &timeinfo);
-            display.println(buffer);
+            display.printf(
+                "%02d:%02d:%02d",
+                timeinfo.tm_hour,
+                timeinfo.tm_min,
+                timeinfo.tm_sec
+            );
             display.setTextSize(1);
+            display.setCursor(10, 40);
+            display.print(day_names[timeinfo.tm_wday]);
             display.setCursor(10, 50);
-            strftime(buffer, sizeof(buffer), "%Y-%m-%d", &timeinfo);
-            display.println(buffer);
+            display.printf(
+                "%02d %s %04d",
+                timeinfo.tm_mday,
+                month_names[timeinfo.tm_mon],
+                timeinfo.tm_year + 1900
+            );
         }
         display.display();
     }
@@ -105,9 +123,6 @@ namespace apps::clock {
                 }    
                 break;
             case events::EventType::NONE:
-                if (last_time_info_update_us == 0) {
-                    configTime(3600, 3600, "pool.ntp.org", "time.nist.gov");
-                }
                 if (last_time_info_update_us + time_info_update_interval_us <= timekeeper::now_us()) {
                     // Update timeinfo here
                     last_time_info_update_us = timekeeper::now_us();

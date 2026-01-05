@@ -39,6 +39,11 @@ namespace apps::music {
         logger::info("Playing melody: %s", melodies[cursor]);
     }
 
+    void back_action(Adafruit_SSD1306& display) {
+        sound::play_cancel_tone();
+        menu::current_app = menu::App::NONE;
+    }
+
     void app(Adafruit_SSD1306& display) {
         events::Event ev = events::get_next_event();
         switch (ev.type) {
@@ -57,7 +62,14 @@ namespace apps::music {
                             break;
                     }
                 } else {
-                    menu::handle_generic_menu_navigation(ev, sizeof(melodies)/sizeof(melodies[0]), cursor, display, menu_action, false);
+                    menu::handle_generic_menu_navigation(
+                        ev, 
+                        sizeof(melodies)/sizeof(melodies[0]), 
+                        cursor, 
+                        display, 
+                        menu_action, 
+                        back_action, 
+                        false);
                 }
                 break;
             case events::EventType::NONE:

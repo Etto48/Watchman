@@ -11,14 +11,16 @@ namespace menu {
         CLOCK = 2,
         STOPWATCH = 3,
         TIMER = 4,
-        MUSIC = 5,
-        WEATHER = 6,
-        PET = 7,
-        MAP = 8,
-        METRONOME = 9,
-        EVENT_DEBUGGER = 10,
-        DEEPSLEEP = 11,
-        SETTINGS = 12
+        ALARM = 5,
+        CALENDAR = 6,
+        MUSIC = 7,
+        WEATHER = 8,
+        PET = 9,
+        MAP = 10,
+        METRONOME = 11,
+        EVENT_DEBUGGER = 12,
+        DEEPSLEEP = 13,
+        SETTINGS = 14
     };
     
     // Request to redraw the display
@@ -62,6 +64,7 @@ namespace menu {
         size_t &cursor, 
         Adafruit_SSD1306& display,
         void(*action)(size_t cursor, Adafruit_SSD1306& display), 
+        void(*back_action)(Adafruit_SSD1306& display) = nullptr,
         bool play_confirm_tone = true, 
         bool play_cancel_tone = true, 
         bool play_navigation_tone = true);

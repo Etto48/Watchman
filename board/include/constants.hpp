@@ -39,5 +39,4 @@ constexpr float BATTERY_R2 = 100e+3f;  // Resistor R2
 constexpr uint16_t MAX_ANALOG_READ = 4095; // 12-bit ADC
 constexpr float ANALOG_REF_VOLTAGE = 3.3f; // Reference voltage for ADC
 
-constexpr size_t GMT_OFFSET_S = 3600; // GMT+1
 constexpr size_t DAYLIGHT_OFFSET_S = 3600; // Daylight saving time offset

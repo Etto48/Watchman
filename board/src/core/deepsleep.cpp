@@ -10,10 +10,24 @@
 #include "core/logger.hpp"
 #include "core/menu.hpp"
 #include "core/timekeeper.hpp"
+#include "apps/alarm.hpp"
 #include "deepsleep.hpp"
 
 namespace deepsleep {
     void deepsleep(Adafruit_SSD1306& display) {
+        auto alarm_info = apps::alarm::get_alarm_timestamp();
+        if (alarm_info.triggered) {
+            logger::info("Deep-sleep aborted due to alarm triggered.");
+            return;
+        }
+        if (alarm_info.timestamp != 0) {
+            auto now = timekeeper::rtc_s();
+            if (now + DEEPSLEEP_GRACE_PERIOD_US / 1000000 + 1 >= alarm_info.timestamp) {
+                logger::info("Deep-sleep aborted due to upcoming alarm.");
+                return;
+            }
+        }
+
         sound::stop_async_interruptible_melody(); // Stop any playing melody
         image::display_image(images::deepsleep, display);
         sound::play_melody(deepsleep_jingle_melody, sizeof(deepsleep_jingle_melody)/sizeof(deepsleep_jingle_melody[0]));
@@ -28,9 +42,26 @@ namespace deepsleep {
             logger::info("Grace period expired.");
             esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
             esp_deep_sleep_enable_gpio_wakeup(1 << A_PIN, ESP_GPIO_WAKEUP_GPIO_LOW);
-            timekeeper::deepsleep();
-            logger::info("Entering deep-sleep.");
-            esp_deep_sleep_start();
+            alarm_info = apps::alarm::get_alarm_timestamp(); // Re-check alarm before deep sleep
+            bool abort_deep_sleep = false;
+            if (alarm_info.timestamp != 0) {
+                // Schedule wakeup for alarm, wake 1s before alarm time
+                auto now = timekeeper::rtc_s();
+                if (alarm_info.timestamp > now + 1) {
+                    esp_sleep_enable_timer_wakeup(static_cast<uint64_t>(alarm_info.timestamp - now - 1) * 1000000);
+                    logger::info("Scheduled wakeup for alarm at %d (in %d seconds).", alarm_info.timestamp, alarm_info.timestamp - now - 1);
+                } else {
+                    logger::info("Deep-sleep aborted due to imminent alarm.");
+                    abort_deep_sleep = true;
+                }
+            }
+            if (!abort_deep_sleep) {
+                timekeeper::deepsleep();
+                logger::info("Entering deep-sleep.");
+                esp_deep_sleep_start();
+            } else {
+                logger::info("Continuing execution.");
+            }
         } else if (wakeup_cause == ESP_SLEEP_WAKEUP_GPIO) {
             logger::info("Deep-sleep aborted by GPIO wakeup.");
         } else {

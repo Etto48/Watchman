@@ -27,9 +27,6 @@ namespace wifi {
         WiFi.hostname("WatchMan");
         WiFi.mode(WIFI_STA);
         constexpr uint64_t CHECK_INTERVAL_MS = 10000; // 10 seconds
-        // If not connected, or connecting, look for SSID, if found connect
-        // If no SSID found, shut down WiFi to save power, retry in a while
-        // If connected, do nothing and wait
         while (true) {
             apps::settings::Settings settings = apps::settings::get_settings();
             if (!settings.wifi_enabled) {
@@ -50,6 +47,6 @@ namespace wifi {
     }
 
     void init() {
-        xTaskCreate(wifi_task, "WiFiTask", 8192, nullptr, 1, nullptr);
+        xTaskCreate(wifi_task, "WiFiTask", 4096, nullptr, 1, nullptr);
     }
 }
