@@ -18,9 +18,10 @@ namespace menu {
         PET = 9,
         MAP = 10,
         METRONOME = 11,
-        EVENT_DEBUGGER = 12,
-        DEEPSLEEP = 13,
-        SETTINGS = 14
+        BATTERY = 12,
+        EVENT_DEBUGGER = 13,
+        DEEPSLEEP = 14,
+        SETTINGS = 15
     };
     
     // Request to redraw the display

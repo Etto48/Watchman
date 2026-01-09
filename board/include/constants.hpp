@@ -35,6 +35,8 @@ constexpr float BATTERY_MAX_VOLTAGE = 4.2f; // Maximum battery voltage
 constexpr float BATTERY_MIN_VOLTAGE = 3.0f; // Minimum battery voltage
 constexpr float BATTERY_R1 = 100e+3f; // Resistor R1 value in ohms
 constexpr float BATTERY_R2 = 100e+3f;  // Resistor R2
+constexpr float BATTERY_CHARGE_VOLTAGE = 4.5f; // Charging voltage
+constexpr float BATTERY_DISCONNECTED_VOLTAGE = 1.0f; // Voltage indicating battery is disconnected
 
 constexpr uint16_t MAX_ANALOG_READ = 4095; // 12-bit ADC
 constexpr float ANALOG_REF_VOLTAGE = 3.3f; // Reference voltage for ADC

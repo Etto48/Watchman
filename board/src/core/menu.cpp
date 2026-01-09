@@ -14,6 +14,7 @@
 #include "apps/pet.hpp"
 #include "apps/map.hpp"
 #include "apps/metronome.hpp"
+#include "apps/battery.hpp"
 #include "apps/event_debugger.hpp"
 #include "apps/deepsleep.hpp"
 #include "apps/settings.hpp"
@@ -28,9 +29,10 @@
 #include "images/battery_1.hpp"
 #include "images/battery_2.hpp"
 #include "images/battery_3.hpp"
+#include "images/battery_4.hpp"
+#include "images/battery_5.hpp"
 #include "images/alarm_0.hpp"
 #include "images/alarm_1.hpp"
-#include "images/battery_disconnected.hpp"
 #include "apps/clock.hpp"
 #include "core/wifi.hpp"
 #include "core/battery.hpp"
@@ -60,6 +62,7 @@ namespace menu {
         "Pet",
         "Map",
         "Metronome",
+        "Battery",
         "Event Debugger",
         "Deepsleep",
         "Settings"
@@ -76,6 +79,7 @@ namespace menu {
         apps::pet::app,
         apps::map::app,
         apps::metronome::app,
+        apps::battery::app,
         apps::event_debugger::app,
         apps::deepsleep::app,
         apps::settings::app
@@ -92,6 +96,7 @@ namespace menu {
         apps::pet::draw,
         apps::map::draw,
         apps::metronome::draw,
+        apps::battery::draw,
         apps::event_debugger::draw,
         apps::deepsleep::draw,
         apps::settings::draw
@@ -137,8 +142,11 @@ namespace menu {
             case battery::BatteryLevel::BATTERY_FULL:
                 battery_icon = images::battery_3;
                 break;
+            case battery::BatteryLevel::BATTERY_CHARGING:
+                battery_icon = images::battery_4;
+                break;
             case battery::BatteryLevel::BATTERY_DISCONNECTED:
-                battery_icon = images::battery_disconnected;
+                battery_icon = images::battery_5;
                 break;
             default:
                 battery_icon = images::battery_0;
@@ -286,15 +294,15 @@ namespace menu {
     void status_update_task(void* param) {
         while (true) {
             wifi::WiFiStatus current_wifi_status = wifi::get_status();
-            battery::BatteryLevel current_battery_level = battery::get_battery_level();
+            battery::BatteryStatus current_battery_status = battery::get_battery_status();
             bool alarm_is_set = apps::alarm::get_alarm_timestamp().timestamp != 0;
             if (xSemaphoreTake(status_mutex, portMAX_DELAY)) {
                 if (current_wifi_status != last_wifi_status) {
                     last_wifi_status = current_wifi_status;
                     dirty = true;
                 }
-                if (current_battery_level != last_battery_level) {
-                    last_battery_level = current_battery_level;
+                if (current_battery_status.level != last_battery_level) {
+                    last_battery_level = current_battery_status.level;
                     dirty = true;
                 }
                 if (alarm_is_set != last_alarm_set) {

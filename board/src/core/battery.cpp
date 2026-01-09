@@ -3,17 +3,7 @@
 #include "constants.hpp"
 
 namespace battery {    
-    BatteryLevel get_battery_level() {
-        pinMode(BAT_PIN, INPUT_PULLUP);
-        auto read_pullup = digitalRead(BAT_PIN);
-        pinMode(BAT_PIN, INPUT_PULLDOWN);
-        auto read_pulldown = digitalRead(BAT_PIN);
-        if (read_pullup == HIGH && read_pulldown == LOW) {
-            return BatteryLevel::BATTERY_DISCONNECTED;
-        } 
-
-        pinMode(BAT_PIN, INPUT);
-
+    BatteryStatus get_battery_status() {
         int analog_value = analogRead(BAT_PIN);
         float voltage_divider_ratio = (BATTERY_R1 + BATTERY_R2) / BATTERY_R2;
         float voltage = (analog_value / static_cast<float>(MAX_ANALOG_READ)) * voltage_divider_ratio * ANALOG_REF_VOLTAGE;
@@ -23,15 +13,21 @@ namespace battery {
         constexpr float BATTERY_VOLTAGE_EMPTY = MIN_VOLTAGE + (VOLTAGE_RANGE * 0.25f);
         constexpr float BATTERY_VOLTAGE_LOW = MIN_VOLTAGE + (VOLTAGE_RANGE * 0.5f);
         constexpr float BATTERY_VOLTAGE_MEDIUM = MIN_VOLTAGE + (VOLTAGE_RANGE * 0.75f);
-        
-        if (voltage < BATTERY_VOLTAGE_EMPTY) {
-            return BatteryLevel::BATTERY_EMPTY;
+        BatteryLevel level; 
+        if (voltage < BATTERY_DISCONNECTED_VOLTAGE) {
+            level = BatteryLevel::BATTERY_DISCONNECTED;
+        } else if (voltage < BATTERY_VOLTAGE_EMPTY) {
+            level = BatteryLevel::BATTERY_EMPTY;
         } else if (voltage < BATTERY_VOLTAGE_LOW) {
-            return BatteryLevel::BATTERY_LOW;
+            level = BatteryLevel::BATTERY_LOW;
         } else if (voltage < BATTERY_VOLTAGE_MEDIUM) {
-            return BatteryLevel::BATTERY_MEDIUM;
+            level = BatteryLevel::BATTERY_MEDIUM;
+        } else if (voltage < BATTERY_CHARGE_VOLTAGE) {
+            level = BatteryLevel::BATTERY_FULL;
         } else {
-            return BatteryLevel::BATTERY_FULL;
+            level = BatteryLevel::BATTERY_CHARGING;
         }
+        uint8_t voltage_dv = static_cast<uint8_t>(voltage * 10); // Convert voltage to decivolts
+        return BatteryStatus{level, voltage_dv};
     }
 }

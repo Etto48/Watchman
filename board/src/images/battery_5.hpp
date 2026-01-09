@@ -5,7 +5,7 @@
 #include <cstddef>
 
 namespace images {
-    constexpr uint8_t battery_disconnected[] PROGMEM = {
+    constexpr uint8_t battery_5[] PROGMEM = {
         0b00000000,
         0b00011000,
         0b00111100,
@@ -15,6 +15,6 @@ namespace images {
         0b00111100,
         0b00000000,
     };
-    constexpr size_t battery_disconnected_width = 8;
-    constexpr size_t battery_disconnected_height = 8;
+    constexpr size_t battery_5_width = 8;
+    constexpr size_t battery_5_height = 8;
 }
